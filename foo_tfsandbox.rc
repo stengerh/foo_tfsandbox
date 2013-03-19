@@ -1,0 +1,137 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDR_TFDBG DIALOGEX 0, 0, 526, 258
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Title Formatting Sandbox"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Script code:",IDC_STATIC,7,7,39,8
+    CONTROL         "",IDC_SCRIPT,"Scintilla",WS_CLIPCHILDREN | WS_BORDER | WS_TABSTOP,7,17,377,118
+    LTEXT           "Selected fragment:",IDC_STATIC,7,140,62,8
+    CONTROL         "",IDC_FRAGMENT,"Scintilla",WS_CLIPCHILDREN | WS_BORDER | WS_TABSTOP,7,151,377,30
+    LTEXT           "Text value of fragment:",IDC_STATIC,7,187,78,8
+    EDITTEXT        IDC_STRINGVALUE,7,198,512,30,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Boolean value of fragment:",IDC_STATIC,7,239,88,8
+    EDITTEXT        IDC_BOOLVALUE,100,237,40,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "&Close",IDCANCEL,469,237,50,14
+    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_LINESATROOT | WS_HSCROLL | WS_TABSTOP,390,17,129,164,WS_EX_CLIENTEDGE
+    LTEXT           "Script structure:",IDC_STATIC,390,7,53,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDR_TFDBG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 519
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 251
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_TFDBG ACCELERATORS 
+BEGIN
+    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_TEST_UPDATE,         VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP1             BITMAP                  "bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_CMD_TFDBG_NAME      "Title Formatting Sandbox"
+    IDS_CMD_TFDBG_DESCRIPTION "Activates the Title Formatting Sandbox window."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

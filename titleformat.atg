@@ -1,0 +1,127 @@
+#include "titleformat_syntax.h"
+
+COMPILER Script
+
+ast::block_expression *root;
+
+/*
+CHARACTERS
+	funcchar = ANY - '\r' - '\n' - '('.
+	funcchar1 = funcchar - '$'.
+	stringchar = ANY - '\''.
+	fieldchar = ANY - '%'.
+	literalchar = ANY - '\r' - '\n' - '(' - ')' - ',' - '$' - '\'' - '%' - '[' - ']'.
+	
+TOKENS
+	literal = literalchar {literalchar}.
+	string = '\'' stringchar {stringchar} '\''.
+	field = '%' fieldchar {fieldchar} '%'.
+	func = '$' funcchar1 {funcchar}.
+	selfquot = "$$" | "''" | "%%".
+	"["
+	"]"
+	"("
+	")"
+	","
+	
+COMMENTS FROM "//" TO "\n"
+	
+IGNORE '\r' + '\n'
+*/
+
+TOKENS
+	literal
+	string
+	field
+	func
+	selfquot
+	"["
+	"]"
+	"("
+	")"
+	","
+	badstring
+	badfield
+	badfunc
+	comment
+
+PRODUCTIONS
+	Script
+		= Block<root>
+		.
+		
+	Block<ast::block_expression *&n>
+		(. Token *t1 = 0;
+		   ast::expression *n1 = 0;
+		   pfc::ptr_list_t<ast::expression> list;
+		   n = 0; .)
+		= (. t1 = t; .)
+		  {
+			Expression<n1> (. list.add_item(n1); .)
+			| Error
+		  }
+		  (. n = new ast::block_expression(t1, list); .)
+		.
+	Expression<ast::expression *&n>
+		= Comment<n>
+		| (. ast::string_constant *n1 = 0; .) String<n1> (. n = n1; .)
+		| (. ast::field_reference *n2 = 0; .) Field<n2> (. n = n2; .)
+		| (. ast::condition_expression *n1 = 0; .) Condition<n1> (. n = n1; .)
+		| (. ast::call_expression *n1 = 0; .) Call<n1> (. n = n1; .)
+		.
+	
+	Comment<ast::expression *&n>
+		= comment (. n = new ast::comment(t); .)
+		.
+	           
+	String<ast::string_constant *&n>
+		(. n = 0; .)
+		= (literal | string | selfquot )
+		  (. n = new ast::string_constant(t); .)
+		.
+		
+	Field<ast::field_reference *&n>
+		(. n = 0; .)
+		= field  (. n = new ast::field_reference(t); .)
+	    .
+	    
+	Condition<ast::condition_expression *&n>
+		(. ast::block_expression *n1 = 0;
+		   Token *t1 = 0;
+		   n = 0; .)
+		= "["
+		  (. t1 = t; .)
+		  Block<n1>
+		  "]"
+		  (. n = new ast::condition_expression(t1, n1, t); .)
+		.
+		
+	Call<ast::call_expression *&n>
+		(. ast::block_expression *n1;
+		   Token *tname = 0;
+		   pfc::ptr_list_t<Token> tdelims;
+		   pfc::ptr_list_t<ast::block_expression> params;
+		   n = 0; .)
+		= 
+			func
+			(. tname = t; .)
+			"("
+			(. tdelims.add_item(t); .)
+			Block<n1>
+			(. params.add_item(n1); .)
+			{
+				","
+				(. tdelims.add_item(t); .)
+				Block<n1>
+				(. params.add_item(n1); .)
+			}
+			")"
+			(. tdelims.add_item(t); n = new ast::call_expression(tname, tdelims, params); .)
+		.
+	           
+	Error = badstring (. SemErr(L"invalid string syntax"); .)
+	      | badfield (. SemErr(L"invalid field syntax"); .)
+	      | badfunc (. SemErr(L"invalid function syntax"); .)
+	      .
+
+END Script.
