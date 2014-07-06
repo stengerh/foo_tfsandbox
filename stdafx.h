@@ -5,9 +5,13 @@
 
 #pragma once
 
+#define ISOLATION_AWARE_ENABLED 1
+
 #include "targetver.h"
 
 #include "foobar2000/SDK/foobar2000.h"
 #include "foobar2000/ATLHelpers/ATLHelpers.h"
+
+#include <commctrl.h>
 
 #include <atldlgs.h>

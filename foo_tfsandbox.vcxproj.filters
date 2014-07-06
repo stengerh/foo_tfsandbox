@@ -94,7 +94,4 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\shared\shared.lib" />
-  </ItemGroup>
 </Project>

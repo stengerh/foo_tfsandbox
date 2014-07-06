@@ -27,6 +27,7 @@ public:
 	static const char *g_pixmap_false;
 
 	HMODULE m_hSciLexerDll;
+	HMODULE m_hLexTitleFormatDll;
 
 	CAccelerator m_accel;
 

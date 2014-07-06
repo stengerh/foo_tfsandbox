@@ -8,8 +8,8 @@
 #define U2T(Text) pfc::stringcvt::string_os_from_utf8(Text).get_ptr()
 #endif
 
-bool Scintilla_RegisterClasses(void *hInstance);
-bool Scintilla_ReleaseResources();
+//bool Scintilla_RegisterClasses(void *hInstance);
+//bool Scintilla_ReleaseResources();
 
 // {B2E1B41E-CF32-41b2-884A-AE12D258FE71}
 static const GUID guid_cfg_format = { 0xb2e1b41e, 0xcf32, 0x41b2, { 0x88, 0x4a, 0xae, 0x12, 0xd2, 0x58, 0xfe, 0x71 } };
@@ -127,17 +127,34 @@ CWindow CTitleFormatSandboxDialog::g_wndInstance;
 
 CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_window_position)
 {
-	m_hSciLexerDll = LoadLibrary(TEXT("FooLexer.dll"));
+	static bool g_init = false;
 
-	if (m_hSciLexerDll == NULL)
+	if (!g_init)
 	{
-		m_hSciLexerDll = LoadLibrary(TEXT("SciLexer.dll"));
+		INITCOMMONCONTROLSEX icce;
+		icce.dwSize = sizeof(icce);
+		icce.dwICC = ICC_TREEVIEW_CLASSES;
+
+		::InitCommonControlsEx(&icce);
+
+		g_init = true;
 	}
+
+	m_hSciLexerDll = ::LoadLibrary(TEXT("SciLexer.dll"));
+	m_hLexTitleFormatDll = ::LoadLibrary(TEXT("LexTitleformat.dll"));
 }
 
 CTitleFormatSandboxDialog::~CTitleFormatSandboxDialog()
 {
-	if (m_hSciLexerDll != NULL) FreeLibrary(m_hSciLexerDll);
+	if (m_hSciLexerDll != NULL)
+	{
+			FreeLibrary(m_hSciLexerDll);
+	}
+
+	if (m_hLexTitleFormatDll != NULL)
+	{
+		::FreeLibrary(m_hLexTitleFormatDll);
+	}
 }
 
 bool CTitleFormatSandboxDialog::pretranslate_message(MSG *pMsg)
@@ -157,8 +174,16 @@ void CTitleFormatSandboxDialog::ActivateDialog()
 	if (!g_wndInstance)
 	{
 		CTitleFormatSandboxDialog * dlg = new CTitleFormatSandboxDialog();
-		dlg->Create(core_api::get_main_window());
-		dlg->ShowWindow(SW_SHOW);
+		if (dlg->m_hSciLexerDll != NULL)
+		{
+			dlg->Create(core_api::get_main_window());
+			dlg->ShowWindow(SW_SHOW);
+		}
+		else
+		{
+			console::formatter() << core_api::get_my_file_name() << ": Could not load SciLexer.dll";
+			delete dlg;
+		}
 	}
 	else
 	{
@@ -178,23 +203,32 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	sciLexer.StyleSetBack(STYLE_DEFAULT, RGB(255, 255, 255));
 	sciLexer.StyleClearAll();
 
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_COMMENTLINE, RGB(0, 128, 0));
-	sciLexer.StyleSetBack(SCE_TITLEFORMAT_STRING, RGB(255, 255, 192));
-	//sciLexer.StyleSetBack(SCE_TITLEFORMAT_LITERALSTRING, RGB(255, 255, 128));
-	sciLexer.StyleSetBack(SCE_TITLEFORMAT_SPECIALSTRING, RGB(255, 255, 128));
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_FIELD, RGB(0, 64, 192));
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_IDENTIFIER, RGB(192, 0, 0));
-	sciLexer.StyleSetBold(SCE_TITLEFORMAT_OPERATOR, true);
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_WORD, RGB(192, 0, 0));
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_WORD2, RGB(192, 0, 0));
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_WORD3, RGB(192, 0, 0));
-	sciLexer.StyleSetFore(SCE_TITLEFORMAT_WORD4, RGB(192, 0, 0));
+	// Comments
+	sciLexer.StyleSetFore(1 /*SCE_TITLEFORMAT_COMMENTLINE*/, RGB(0, 128, 0));
+
+	// Operators
+	sciLexer.StyleSetBold(2 /*SCE_TITLEFORMAT_OPERATOR*/, true);
+
+	// Fields
+	sciLexer.StyleSetFore(3 /*SCE_TITLEFORMAT_FIELD*/, RGB(0, 64, 192));
+
+	// Strings (Single quoted string)
+	sciLexer.StyleSetItalic(4 /*SCE_TITLEFORMAT_STRING*/, true);
+
+	// Text (Unquoted string)
+	//sciLexer.StyleSetBack(5 /*SCE_TITLEFORMAT_LITERALSTRING*/, RGB(255, 255, 128));
+
+	// Characters (%%, &&, '')
+	sciLexer.StyleSetFore(6 /*SCE_TITLEFORMAT_SPECIALSTRING*/, RGB(128, 128, 128));
+
+	// Functions
+	sciLexer.StyleSetFore(7 /*SCE_TITLEFORMAT_IDENTIFIER*/, RGB(192, 0, 192));
 
 	sciLexer.MarkerDefinePixmap(0, g_pixmap_false);
 	sciLexer.MarkerDefinePixmap(1, g_pixmap_true);
 
 	int lex1 = sciLexer.GetLexer();
-	sciLexer.SetLexerLanguage("titleformat");
+	sciLexer.SetLexerLanguage("titleformat1");
 	int lex2 = sciLexer.GetLexer();
 }
 
@@ -679,11 +713,11 @@ LRESULT CTitleFormatSandboxDialog::OnScriptDwellStart(LPNMHDR pnmh)
 				if (m_debugger.get_value(frag[0], string_value, bool_value))
 				{
 					int tabSize = pfc::max_t(
-						m_editor.TextWidth(STYLE_CALLTIP, "String value: "),
+						m_editor.TextWidth(STYLE_CALLTIP, "Text value: "),
 						m_editor.TextWidth(STYLE_CALLTIP, "Boolean value: "));
 					m_editor.CallTipUseStyle(tabSize);
 					bool truncated = string_value.truncate_eol() || string_value.limit_length(250, "");
-					msg << "\nString value:\t" << string_value;
+					msg << "\nText value:\t" << string_value;
 					if (truncated) msg << "...";
 					msg << "\nBoolean value:\t" << (bool_value ? "true" : "false");
 				}
