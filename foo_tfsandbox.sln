@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_tfsandbox", "foo_tfsandbox.vcxproj", "{3B0665BC-9426-4E83-868F-D0E122F1AEF3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_tfsandbox", "foo_tfsandbox\foo_tfsandbox.vcxproj", "{3B0665BC-9426-4E83-868F-D0E122F1AEF3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pfc", "..\..\sdk\2011-03-11\pfc\pfc.vcxproj", "{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}"
 EndProject

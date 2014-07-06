@@ -1,9 +1,10 @@
+*.aps
+*.vcxproj.user
+*.suo
+*.opensdf
+*.sdf
+/ipch
 /Debug
 /Release
-
-*.vcxproj.user
-/*.suo
-/*.opensdf
-/*.sdf
-/ipch
-*.aps
+/foo_tfsandbox/Debug
+/foo_tfsandbox/Release
