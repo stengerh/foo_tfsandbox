@@ -6,8 +6,8 @@
 
 DECLARE_COMPONENT_VERSION(
 "Title Formatting Sandbox",
-"1.0 alpha 2010-01-12",
-"Copyright (C) 2008-2010 Holger Stenger");
+"1.0 alpha 2014-07-07",
+"Copyright (C) 2014 Holger Stenger");
 
 class string_from_resources
 {
