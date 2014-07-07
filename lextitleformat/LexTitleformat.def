@@ -1,0 +1,6 @@
+LIBRARY
+
+EXPORTS
+GetLexerCount
+GetLexerName
+GetLexerFactory

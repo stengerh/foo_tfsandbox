@@ -6,5 +6,11 @@
 /ipch
 /Debug
 /Release
+/lexlib/Debug
+/lexlib/Release
+/lextitleformat/Debug
+/lextitleformat/Release
 /foo_tfsandbox/Debug
 /foo_tfsandbox/Release
+/scintilla/win32/Debug
+/scintilla/win32/Release
