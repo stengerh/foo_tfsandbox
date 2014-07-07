@@ -83,7 +83,7 @@ def printWTLFile(f):
 					out.append("\tint " + name + "Length(" + (param1Type + " " + param1Name if param1Name else "") + ") " + methodMod)
 					out.append("\t{")
 					out.append("\t\tATLASSERT(::IsWindow(m_hWnd));")
-					out.append("\t\treturn Call(" + featureDefineName + (", (WPARAM) " + param1Name if param1Name else "") + ", 0)")
+					out.append("\t\treturn Call(" + featureDefineName + (", (WPARAM) " + param1Name if param1Name else "") + ", 0);")
 					out.append("\t}")
 					out.append("")
 				#

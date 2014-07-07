@@ -272,7 +272,7 @@ public:
 	int GetCurLineLength(int length) throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETCURLINE, (WPARAM) length, 0)
+		return Call(SCI_GETCURLINE, (WPARAM) length, 0);
 	}
 
 	int GetEndStyled() const throw()
@@ -597,7 +597,7 @@ public:
 	int StyleGetFontLength(int style) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_STYLEGETFONT, (WPARAM) style, 0)
+		return Call(SCI_STYLEGETFONT, (WPARAM) style, 0);
 	}
 
 	bool StyleGetEOLFilled(int style) const throw()
@@ -796,7 +796,7 @@ public:
 	int GetWordCharsLength() const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETWORDCHARS, 0)
+		return Call(SCI_GETWORDCHARS, 0);
 	}
 
 	void BeginUndoAction() throw()
@@ -1319,7 +1319,7 @@ public:
 	int GetLineLength(int line) throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETLINE, (WPARAM) line, 0)
+		return Call(SCI_GETLINE, (WPARAM) line, 0);
 	}
 
 	int GetLineCount() const throw()
@@ -1386,7 +1386,7 @@ public:
 	int GetSelTextLength() throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETSELTEXT, 0)
+		return Call(SCI_GETSELTEXT, 0);
 	}
 
 	int GetTextRange(Sci_TextRange * tr) throw()
@@ -1537,7 +1537,7 @@ public:
 	int GetTextLength(int length) throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETTEXT, (WPARAM) length, 0)
+		return Call(SCI_GETTEXT, (WPARAM) length, 0);
 	}
 
 	int GetTextLength() const throw()
@@ -2090,7 +2090,7 @@ public:
 	int GetTagLength(int tagNumber) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETTAG, (WPARAM) tagNumber, 0)
+		return Call(SCI_GETTAG, (WPARAM) tagNumber, 0);
 	}
 
 	void TargetFromSelection() throw()
@@ -3057,7 +3057,7 @@ public:
 	int GetWhitespaceCharsLength() const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETWHITESPACECHARS, 0)
+		return Call(SCI_GETWHITESPACECHARS, 0);
 	}
 
 	void SetPunctuationChars(LPCSTR characters) throw()
@@ -3088,7 +3088,7 @@ public:
 	int GetPunctuationCharsLength() const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETPUNCTUATIONCHARS, 0)
+		return Call(SCI_GETPUNCTUATIONCHARS, 0);
 	}
 
 	void SetCharsDefault() throw()
@@ -3125,7 +3125,7 @@ public:
 	int AutoCGetCurrentTextLength() const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_AUTOCGETCURRENTTEXT, 0)
+		return Call(SCI_AUTOCGETCURRENTTEXT, 0);
 	}
 
 	void AutoCSetCaseInsensitiveBehaviour(int behaviour) throw()
@@ -3192,7 +3192,7 @@ public:
 	int TargetAsUTF8Length() throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_TARGETASUTF8, 0)
+		return Call(SCI_TARGETASUTF8, 0);
 	}
 
 	void SetLengthForEncode(int bytes) throw()
@@ -3223,7 +3223,7 @@ public:
 	int EncodedFromUTF8Length(LPCSTR utf8) throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_ENCODEDFROMUTF8, (WPARAM) utf8, 0)
+		return Call(SCI_ENCODEDFROMUTF8, (WPARAM) utf8, 0);
 	}
 
 	int FindColumn(int line, int column) throw()
@@ -3482,7 +3482,7 @@ public:
 	int MarginGetTextLength(int line) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_MARGINGETTEXT, (WPARAM) line, 0)
+		return Call(SCI_MARGINGETTEXT, (WPARAM) line, 0);
 	}
 
 	void MarginSetStyle(int line, int style) throw()
@@ -3525,7 +3525,7 @@ public:
 	int MarginGetStylesLength(int line) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_MARGINGETSTYLES, (WPARAM) line, 0)
+		return Call(SCI_MARGINGETSTYLES, (WPARAM) line, 0);
 	}
 
 	void MarginTextClearAll() throw()
@@ -3586,7 +3586,7 @@ public:
 	int AnnotationGetTextLength(int line) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_ANNOTATIONGETTEXT, (WPARAM) line, 0)
+		return Call(SCI_ANNOTATIONGETTEXT, (WPARAM) line, 0);
 	}
 
 	void AnnotationSetStyle(int line, int style) throw()
@@ -3629,7 +3629,7 @@ public:
 	int AnnotationGetStylesLength(int line) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_ANNOTATIONGETSTYLES, (WPARAM) line, 0)
+		return Call(SCI_ANNOTATIONGETSTYLES, (WPARAM) line, 0);
 	}
 
 	int AnnotationGetLines(int line) const throw()
@@ -4188,7 +4188,7 @@ public:
 	int GetRepresentationLength(LPCSTR encodedCharacter) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETREPRESENTATION, (WPARAM) encodedCharacter, 0)
+		return Call(SCI_GETREPRESENTATION, (WPARAM) encodedCharacter, 0);
 	}
 
 	void ClearRepresentation(LPCSTR encodedCharacter) throw()
@@ -4273,7 +4273,7 @@ public:
 	int GetPropertyLength(LPCSTR key) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETPROPERTY, (WPARAM) key, 0)
+		return Call(SCI_GETPROPERTY, (WPARAM) key, 0);
 	}
 
 	int GetPropertyExpanded(LPCSTR key, LPSTR buf) const throw()
@@ -4298,7 +4298,7 @@ public:
 	int GetPropertyExpandedLength(LPCSTR key) const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETPROPERTYEXPANDED, (WPARAM) key, 0)
+		return Call(SCI_GETPROPERTYEXPANDED, (WPARAM) key, 0);
 	}
 
 	int GetPropertyInt(LPCSTR key) const throw()
@@ -4335,7 +4335,7 @@ public:
 	int GetLexerLanguageLength() const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETLEXERLANGUAGE, 0)
+		return Call(SCI_GETLEXERLANGUAGE, 0);
 	}
 
 	int PrivateLexerCall(int operation, int pointer) throw()
@@ -4366,7 +4366,7 @@ public:
 	int PropertyNamesLength() throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_PROPERTYNAMES, 0)
+		return Call(SCI_PROPERTYNAMES, 0);
 	}
 
 	int PropertyType(LPCSTR name) throw()
@@ -4397,7 +4397,7 @@ public:
 	int DescribePropertyLength(LPCSTR name) throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_DESCRIBEPROPERTY, (WPARAM) name, 0)
+		return Call(SCI_DESCRIBEPROPERTY, (WPARAM) name, 0);
 	}
 
 	int DescribeKeyWordSets(LPSTR descriptions) throw()
@@ -4422,7 +4422,7 @@ public:
 	int DescribeKeyWordSetsLength() throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_DESCRIBEKEYWORDSETS, 0)
+		return Call(SCI_DESCRIBEKEYWORDSETS, 0);
 	}
 
 	int GetLineEndTypesSupported() const throw()
@@ -4501,7 +4501,7 @@ public:
 	int GetSubStyleBasesLength() const throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
-		return Call(SCI_GETSUBSTYLEBASES, 0)
+		return Call(SCI_GETSUBSTYLEBASES, 0);
 	}
 
 /* --Autogenerated -- end of section automatically generated from Scintilla.iface */
