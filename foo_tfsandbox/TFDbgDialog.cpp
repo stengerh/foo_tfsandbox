@@ -140,8 +140,17 @@ CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_win
 		g_init = true;
 	}
 
-	m_hSciLexerDll = ::LoadLibrary(TEXT("SciLexer.dll"));
-	m_hLexTitleFormatDll = ::LoadLibrary(TEXT("LexTitleformat.dll"));
+	pfc::string8 install_dir = pfc::string_directory(core_api::get_my_full_path());
+
+	pfc::string8 scilexer_path = install_dir;
+	scilexer_path += "\\SciLexer.dll";
+
+	m_hSciLexerDll = ::uLoadLibrary(scilexer_path);
+
+	pfc::string8 lextitleformat_path = install_dir;
+	lextitleformat_path += "\\LexTitleformat.dll";
+
+	m_hLexTitleFormatDll = ::uLoadLibrary(lextitleformat_path);
 }
 
 CTitleFormatSandboxDialog::~CTitleFormatSandboxDialog()
@@ -210,7 +219,7 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	sciLexer.StyleSetBold(2 /*SCE_TITLEFORMAT_OPERATOR*/, true);
 
 	// Fields
-	sciLexer.StyleSetFore(3 /*SCE_TITLEFORMAT_FIELD*/, RGB(0, 64, 192));
+	sciLexer.StyleSetFore(3 /*SCE_TITLEFORMAT_FIELD*/, RGB(0, 0, 192));
 
 	// Strings (Single quoted string)
 	sciLexer.StyleSetItalic(4 /*SCE_TITLEFORMAT_STRING*/, true);
@@ -219,7 +228,7 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	//sciLexer.StyleSetBack(5 /*SCE_TITLEFORMAT_LITERALSTRING*/, RGB(255, 255, 128));
 
 	// Characters (%%, &&, '')
-	sciLexer.StyleSetFore(6 /*SCE_TITLEFORMAT_SPECIALSTRING*/, RGB(128, 128, 128));
+	//sciLexer.StyleSetFore(6 /*SCE_TITLEFORMAT_SPECIALSTRING*/, RGB(128, 128, 128));
 
 	// Functions
 	sciLexer.StyleSetFore(7 /*SCE_TITLEFORMAT_IDENTIFIER*/, RGB(192, 0, 192));
@@ -228,7 +237,7 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	sciLexer.MarkerDefinePixmap(1, g_pixmap_true);
 
 	int lex1 = sciLexer.GetLexer();
-	sciLexer.SetLexerLanguage("titleformat1");
+	sciLexer.SetLexerLanguage("titleformat");
 	int lex2 = sciLexer.GetLexer();
 }
 
@@ -239,6 +248,8 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_editStringValue.Attach(GetDlgItem(IDC_STRINGVALUE));
 	m_editBoolValue.Attach(GetDlgItem(IDC_BOOLVALUE));
 	m_treeScript.Attach(GetDlgItem(IDC_TREE));
+
+	m_editor.LoadLexerLibrary("LexTitleformat.dll");
 
 	m_editor.SetCodePage(SC_CP_UTF8);
 	m_editor.SetModEventMask(SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
@@ -259,12 +270,19 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_editor.StyleSetFore(STYLE_CALLTIP, GetSysColor(COLOR_INFOTEXT));
 	m_editor.StyleSetBack(STYLE_CALLTIP, GetSysColor(COLOR_INFOBK));
 
+	m_editor.SetTwoPhaseDraw(true);
+
 	// inactive code
-	m_editor.IndicSetStyle(indicator_inactive_code, INDIC_DIAGONAL);
-	m_editor.IndicSetFore(indicator_inactive_code, RGB(64, 64, 64));
+	//m_editor.IndicSetStyle(indicator_inactive_code, INDIC_DIAGONAL);
+	//m_editor.IndicSetFore(indicator_inactive_code, RGB(64, 64, 64));
+	m_editor.IndicSetStyle(indicator_inactive_code, INDIC_STRAIGHTBOX);
+	m_editor.IndicSetFore(indicator_inactive_code, RGB(0, 0, 0));
+	m_editor.IndicSetUnder(indicator_inactive_code, true);
+	m_editor.Call(SCI_INDICSETALPHA, indicator_inactive_code, 20);
+	m_editor.Call(SCI_INDICSETOUTLINEALPHA, indicator_inactive_code, 20);
 
 	// selected fragment
-	m_editor.IndicSetStyle(indicator_fragment, INDIC_ROUNDBOX);
+	m_editor.IndicSetStyle(indicator_fragment, INDIC_STRAIGHTBOX);
 	m_editor.IndicSetFore(indicator_fragment, RGB(64, 128, 255));
 	m_editor.IndicSetUnder(indicator_fragment, true);
 
@@ -433,7 +451,7 @@ namespace ast
 			bool expand = false;
 			if (param_index != ~0 && n->get_child_count() != 1)
 			{
-				parent = InsertItem("Block", n->kind(), n);
+				parent = InsertItem("...", n->kind(), n);
 				expand = true;
 			}
 
@@ -461,7 +479,7 @@ namespace ast
 		void visit(condition_expression *n)
 		{
 			builder_helper helper(parent, parent);
-			parent = InsertItem("[ ]", n->kind(), n);
+			parent = InsertItem("[...]", n->kind(), n);
 
 			param_index = ~0;
 			n->get_param()->accept(this);
