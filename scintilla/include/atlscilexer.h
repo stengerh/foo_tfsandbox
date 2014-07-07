@@ -4338,7 +4338,7 @@ public:
 		return Call(SCI_GETLEXERLANGUAGE, 0);
 	}
 
-	int PrivateLexerCall(int operation, int pointer) throw()
+	int PrivateLexerCall(int operation, void * pointer) throw()
 	{
 		ATLASSERT(::IsWindow(m_hWnd));
 		return Call(SCI_PRIVATELEXERCALL, (WPARAM) operation, (LPARAM) pointer);
