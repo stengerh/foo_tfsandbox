@@ -55,9 +55,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="atlscilexer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CustomScanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
