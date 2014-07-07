@@ -36,6 +36,7 @@ public:
 private:
 	OptionsTitleformat options;
 	OptionSetTitleformat optionSet;
+	std::vector< std::pair<int, int> > inactiveRanges;
 };
 
 #endif // LEXTITLEFORMAT_H

@@ -4,6 +4,8 @@
 #include "atlscilexer.h"
 #include "TFDbgDialog.h"
 
+#include <vector>
+
 #ifndef U2T
 #define U2T(Text) pfc::stringcvt::string_os_from_utf8(Text).get_ptr()
 #endif
@@ -214,31 +216,44 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 
 	// Comments
 	sciLexer.StyleSetFore(1 /*SCE_TITLEFORMAT_COMMENTLINE*/, RGB(0, 128, 0));
+	sciLexer.StyleSetFore(1 + 64 /*SCE_TITLEFORMAT_COMMENTLINE | inactive*/, RGB(128, 255, 128));
 
 	// Operators
 	sciLexer.StyleSetBold(2 /*SCE_TITLEFORMAT_OPERATOR*/, true);
+	sciLexer.StyleSetBold(2 + 64 /*SCE_TITLEFORMAT_OPERATOR | inactive*/, true);
+	sciLexer.StyleSetFore(2 + 64 /*SCE_TITLEFORMAT_OPERATOR | inactive*/, RGB(128, 128, 128));
 
 	// Fields
 	sciLexer.StyleSetFore(3 /*SCE_TITLEFORMAT_FIELD*/, RGB(0, 0, 192));
+	sciLexer.StyleSetFore(3 + 64 /*SCE_TITLEFORMAT_FIELD | inactive*/, RGB(128, 128, 224));
 
 	// Strings (Single quoted string)
 	sciLexer.StyleSetItalic(4 /*SCE_TITLEFORMAT_STRING*/, true);
+	sciLexer.StyleSetItalic(4 + 64 /*SCE_TITLEFORMAT_STRING | inactive*/, true);
+	sciLexer.StyleSetFore(4 + 64 /*SCE_TITLEFORMAT_STRING | inactive*/, RGB(128, 128, 128));
 
 	// Text (Unquoted string)
 	//sciLexer.StyleSetBack(5 /*SCE_TITLEFORMAT_LITERALSTRING*/, RGB(255, 255, 128));
+	sciLexer.StyleSetFore(5 + 64 /*SCE_TITLEFORMAT_LITERALSTRING | inactive*/, RGB(128, 128, 128));
 
 	// Characters (%%, &&, '')
 	//sciLexer.StyleSetFore(6 /*SCE_TITLEFORMAT_SPECIALSTRING*/, RGB(128, 128, 128));
+	sciLexer.StyleSetFore(6 + 64/*SCE_TITLEFORMAT_SPECIALSTRING | inactive*/, RGB(128, 128, 128));
 
 	// Functions
 	sciLexer.StyleSetFore(7 /*SCE_TITLEFORMAT_IDENTIFIER*/, RGB(192, 0, 192));
+	sciLexer.StyleSetFore(7 + 64 /*SCE_TITLEFORMAT_IDENTIFIER | inactive*/, RGB(224, 128, 224));
 
 	sciLexer.MarkerDefinePixmap(0, g_pixmap_false);
 	sciLexer.MarkerDefinePixmap(1, g_pixmap_true);
 
 	int lex1 = sciLexer.GetLexer();
 	sciLexer.SetLexerLanguage("titleformat");
-	int lex2 = sciLexer.GetLexer();
+	ATL::CStringA lexerLanguage;
+	if ((sciLexer.GetLexerLanguage(lexerLanguage) < 0) || (lexerLanguage != "titleformat"))
+	{
+		console::formatter() << core_api::get_my_file_name() << ": Could not select titleformat lexer";
+	}
 }
 
 BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
@@ -576,15 +591,78 @@ static void g_walk_indicator(CSciLexerCtrl sciLexer, titleformat_debugger &dbg, 
 	}
 }
 
+class inactive_range_walker
+{
+public:
+	std::vector<int> inactiveRanges;
+
+	inactive_range_walker(titleformat_debugger &p_dbg) : dbg(p_dbg)
+	{
+		walk(p_dbg.get_root());
+		inactiveRanges.push_back(-1);
+		inactiveRanges.push_back(-1);
+	}
+
+private:
+	titleformat_debugger &dbg;
+
+	void walk(ast::node *n)
+	{
+		if (dbg.test_value(n))
+		{
+			t_size count = n->get_child_count();
+			switch (n->kind())
+			{
+			case ast::node::kind_block:
+				for (t_size index = 0; index < count; ++index)
+				{
+					walk(n->get_child(index));
+				}
+				break;
+
+			case ast::node::kind_condition:
+				walk(n->get_child(1));
+				break;
+
+			case ast::node::kind_call:
+				ast::call_expression *call;
+				call = static_cast<ast::call_expression *>(n);
+				for (t_size index = 0; index < call->get_param_count(); ++index)
+				{
+					walk(call->get_param(index));
+				}
+				break;
+			}
+		}
+		else if (n->kind() != ast::node::kind_comment)
+		{
+			ast::position pos = n->get_position();
+			if (pos.start != -1)
+			{
+				inactiveRanges.push_back(pos.start);
+				inactiveRanges.push_back(pos.end - pos.start);
+			}
+		}
+	}
+};
+
 void CTitleFormatSandboxDialog::ClearInactiveCodeIndicator()
 {
+#if 0
 	m_editor.SetIndicatorCurrent(indicator_inactive_code);
 	m_editor.SetIndicatorValue(1);
 	m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
+#else
+	int ranges[] = {
+		-1, -1,
+	};
+	m_editor.PrivateLexerCall(1234, ranges);
+#endif
 }
 
 void CTitleFormatSandboxDialog::UpdateInactiveCodeIndicator()
 {
+#if 0
 	m_editor.SetIndicatorCurrent(indicator_inactive_code);
 	m_editor.SetIndicatorValue(1);
 	m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
@@ -594,6 +672,11 @@ void CTitleFormatSandboxDialog::UpdateInactiveCodeIndicator()
 		ast::node *root = m_debugger.get_root();
 		g_walk_indicator(m_editor, m_debugger, root);
 	}
+#else
+	inactive_range_walker walker(m_debugger);
+	m_editor.PrivateLexerCall(1234, &walker.inactiveRanges[0]);
+	m_editor.Colourise(0, m_editor.GetLength());
+#endif
 }
 
 void CTitleFormatSandboxDialog::ClearFragment()

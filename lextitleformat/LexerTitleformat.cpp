@@ -88,9 +88,19 @@ void LexerTitleformat::Lex(unsigned int startPos, int lengthDoc, int initStyle, 
 	LexAccessor styler(pAccess);
 	StyleContext sc = StyleContext(startPos, lengthDoc, initStyle, styler);
 
+	struct pred {
+		bool operator ()(const std::pair<int, int> & range, int pos) {
+			return range.first < pos;
+		}
+	};
+
+	auto currentRange = std::lower_bound(inactiveRanges.begin(), inactiveRanges.end(), sc.currentPos, pred());
+
+	int inactiveFlag = 0;
+
 	for (; sc.More(); sc.Forward()) {
 		// Determine if the current state should terminate.
-		switch (sc.state) {
+		switch (sc.state & 63) {
 		case SCE_TITLEFORMAT_OPERATOR:
 			sc.SetState(SCE_TITLEFORMAT_DEFAULT);
 			break;
@@ -126,22 +136,37 @@ void LexerTitleformat::Lex(unsigned int startPos, int lengthDoc, int initStyle, 
 
 		// Determine if a new state should be entered.
 		if (sc.state == SCE_TITLEFORMAT_DEFAULT) {
+			inactiveFlag = 0;
+
+			while ((currentRange != inactiveRanges.end()) &&
+				(sc.currentPos >= currentRange->first) &&
+				((sc.currentPos - currentRange->first) >= currentRange->second))
+			{
+				++currentRange;
+			}
+
+			if ((currentRange != inactiveRanges.end()) &&
+				(sc.currentPos >= currentRange->first) &&
+				((sc.currentPos - currentRange->first) < currentRange->second)) {
+					inactiveFlag = 64;
+			}
+
 			if (sc.Match('/', '/')) {
 				sc.SetState(SCE_TITLEFORMAT_COMMENT);
 				sc.Forward();
 			} else if (IsTitleFormatOperator(sc.ch)) {
-				sc.SetState(SCE_TITLEFORMAT_OPERATOR);
+				sc.SetState(SCE_TITLEFORMAT_OPERATOR | inactiveFlag);
 			} else if (IsASpecialStringChar(sc.ch) && sc.ch == sc.chNext) {
-				sc.SetState(SCE_TITLEFORMAT_SPECIALSTRING);
+				sc.SetState(SCE_TITLEFORMAT_SPECIALSTRING | inactiveFlag);
 				sc.Forward();
 			} else if (sc.ch == '$') {
-				sc.SetState(SCE_TITLEFORMAT_IDENTIFIER);
+				sc.SetState(SCE_TITLEFORMAT_IDENTIFIER | inactiveFlag);
 			} else if (sc.ch == '%') {
-				sc.SetState(SCE_TITLEFORMAT_FIELD);
+				sc.SetState(SCE_TITLEFORMAT_FIELD | inactiveFlag);
 			} else if (sc.ch == '\'') {
-				sc.SetState(SCE_TITLEFORMAT_STRING);
+				sc.SetState(SCE_TITLEFORMAT_STRING | inactiveFlag);
 			} else if (IsALiteralStringChar(sc.ch)) {
-				sc.SetState(SCE_TITLEFORMAT_LITERALSTRING);
+				sc.SetState(SCE_TITLEFORMAT_LITERALSTRING | inactiveFlag);
 			}
 		}
 	}
@@ -180,5 +205,15 @@ void LexerTitleformat::Fold(unsigned int startPos, int lengthDoc, int initStyle,
 }
 
 void * LexerTitleformat::PrivateCall(int operation, void *pointer) {
+	if (operation == 1234 && pointer != 0)
+	{
+		inactiveRanges.clear();
+		const int * const ranges = reinterpret_cast<const int * const>(pointer);
+		for (size_t index = 0; ranges[index] != -1 && ranges[index+1] != -1; index += 2)
+		{
+			inactiveRanges.push_back(std::pair<int, int>(ranges[index], ranges[index+1]));
+		}
+	}
+
 	return 0;
 }
