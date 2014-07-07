@@ -40,6 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\portable\user-components\foo_tfsandbox\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -51,7 +52,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>BUILD_AS_EXTERNAL_LEXER;WIN32;_DEBUG;_WINDOWS;_USRDLL;LEX_TITLEFORMAT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\scintilla\include;..\..\scintilla\lexlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\scintilla\include;..\scintilla\lexlib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -68,7 +69,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>BUILD_AS_EXTERNAL_LEXER;WIN32;NDEBUG;_WINDOWS;_USRDLL;LEX_TITLEFORMAT_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\scintilla\include;..\..\scintilla\lexlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\scintilla\include;..\scintilla\lexlib</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>

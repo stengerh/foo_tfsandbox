@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+# Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_tfsandbox", "foo_tfsandbox\foo_tfsandbox.vcxproj", "{3B0665BC-9426-4E83-868F-D0E122F1AEF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FBE04237-9C7B-4973-9C60-505975998B39} = {FBE04237-9C7B-4973-9C60-505975998B39}
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1} = {EAEEDCF3-0130-4077-AF58-92897C8634E1}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pfc", "..\..\sdk\2011-03-11\pfc\pfc.vcxproj", "{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}"
 EndProject
@@ -15,6 +19,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foobar2000_SDK", "..\..\sdk
 	ProjectSection(ProjectDependencies) = postProject
 		{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C} = {EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lexlib", "lexlib\lexlib.vcxproj", "{AE657589-2141-475D-B74C-9C8C2E84AFD3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LexTitleformat", "lextitleformat\lextitleformat.vcxproj", "{EAEEDCF3-0130-4077-AF58-92897C8634E1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciLexer", "scintilla\win32\SciLexer.vcxproj", "{FBE04237-9C7B-4973-9C60-505975998B39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +80,26 @@ Global
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Release|Win32.Build.0 = Release|Win32
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Release|x64.ActiveCfg = Release|x64
 		{E8091321-D79D-4575-86EF-064EA1A4A20D}.Release|x64.Build.0 = Release|x64
+		{AE657589-2141-475D-B74C-9C8C2E84AFD3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AE657589-2141-475D-B74C-9C8C2E84AFD3}.Debug|Win32.Build.0 = Debug|Win32
+		{AE657589-2141-475D-B74C-9C8C2E84AFD3}.Debug|x64.ActiveCfg = Debug|Win32
+		{AE657589-2141-475D-B74C-9C8C2E84AFD3}.Release|Win32.ActiveCfg = Release|Win32
+		{AE657589-2141-475D-B74C-9C8C2E84AFD3}.Release|Win32.Build.0 = Release|Win32
+		{AE657589-2141-475D-B74C-9C8C2E84AFD3}.Release|x64.ActiveCfg = Release|Win32
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1}.Debug|Win32.Build.0 = Debug|Win32
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1}.Debug|x64.ActiveCfg = Debug|Win32
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1}.Release|Win32.ActiveCfg = Release|Win32
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1}.Release|Win32.Build.0 = Release|Win32
+		{EAEEDCF3-0130-4077-AF58-92897C8634E1}.Release|x64.ActiveCfg = Release|Win32
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Debug|Win32.Build.0 = Debug|Win32
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Debug|x64.ActiveCfg = Debug|x64
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Debug|x64.Build.0 = Debug|x64
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Release|Win32.ActiveCfg = Release|Win32
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Release|Win32.Build.0 = Release|Win32
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Release|x64.ActiveCfg = Release|x64
+		{FBE04237-9C7B-4973-9C60-505975998B39}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

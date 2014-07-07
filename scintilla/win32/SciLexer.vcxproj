@@ -52,6 +52,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\portable\user-components\foo_tfsandbox\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
