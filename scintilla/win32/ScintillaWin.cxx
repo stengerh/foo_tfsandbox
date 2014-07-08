@@ -198,6 +198,8 @@ class ScintillaWin :
 	DropTarget dt;
 
 	static HINSTANCE hInstance;
+	static ATOM scintillaClassAtom;
+	static ATOM callClassAtom;
 
 #if defined(USE_D2D)
 	ID2D1HwndRenderTarget *pRenderTarget;
@@ -323,6 +325,8 @@ private:
 };
 
 HINSTANCE ScintillaWin::hInstance = 0;
+ATOM ScintillaWin::scintillaClassAtom = 0;
+ATOM ScintillaWin::callClassAtom = 0;
 
 ScintillaWin::ScintillaWin(HWND hwnd) {
 
@@ -2669,7 +2673,8 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		wndclass.lpszMenuName = NULL;
 		wndclass.lpszClassName = L"Scintilla";
 		wndclass.hIconSm = 0;
-		result = ::RegisterClassExW(&wndclass) != 0;
+		scintillaClassAtom = ::RegisterClassExW(&wndclass);
+		result = 0 != scintillaClassAtom;
 	} else {
 
 		// Register Scintilla as a normal character window
@@ -2686,7 +2691,8 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		wndclass.lpszMenuName = NULL;
 		wndclass.lpszClassName = scintillaClassName;
 		wndclass.hIconSm = 0;
-		result = ::RegisterClassEx(&wndclass) != 0;
+		scintillaClassAtom = ::RegisterClassExW(&wndclass);
+		result = 0 != scintillaClassAtom;
 	}
 
 	if (result) {
@@ -2704,17 +2710,27 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		wndclassc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 		wndclassc.lpszClassName = callClassName;
 		wndclassc.hIconSm = 0;
-
-		result = ::RegisterClassEx(&wndclassc) != 0;
+		callClassAtom = ::RegisterClassEx(&wndclassc);
+		result = 0!= callClassAtom;
 	}
 
 	return result;
 }
 
 bool ScintillaWin::Unregister() {
-	bool result = ::UnregisterClass(scintillaClassName, hInstance) != 0;
-	if (::UnregisterClass(callClassName, hInstance) == 0)
-		result = false;
+	bool result = true;
+	if (0 != scintillaClassAtom) {
+		if (::UnregisterClass(MAKEINTATOM(scintillaClassAtom), hInstance) == 0) {
+			result = false;
+		}
+		scintillaClassAtom = 0;
+	}
+	if (0 != callClassAtom) {
+		if (::UnregisterClass(MAKEINTATOM(callClassAtom), hInstance) == 0) {
+			result = false;
+		}
+		callClassAtom = 0;
+	}
 	return result;
 }
 
