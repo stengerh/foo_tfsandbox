@@ -10,8 +10,6 @@
 #define U2T(Text) pfc::stringcvt::string_os_from_utf8(Text).get_ptr()
 #endif
 
-//bool Scintilla_RegisterClasses(void *hInstance);
-//bool Scintilla_ReleaseResources();
 
 // {B2E1B41E-CF32-41b2-884A-AE12D258FE71}
 static const GUID guid_cfg_format = { 0xb2e1b41e, 0xcf32, 0x41b2, { 0x88, 0x4a, 0xae, 0x12, 0xd2, 0x58, 0xfe, 0x71 } };
@@ -22,11 +20,64 @@ static cfgDialogPosition cfg_window_position(guid_cfg_window_position);
 
 static cfg_string cfg_format(guid_cfg_format,
 #ifdef _DEBUG
-														 "// This is a comment\r\n'test'test$$%%''\r\n$if(%track artist%,'['test'')\r\n// This is another comment\r\n[%comment%]"
+	"// This is a comment\r\n'test'test$$%%''\r\n$if(%track artist%,'['test'')\r\n// This is another comment\r\n[%comment%]"
 #else
-														 "// Type your title formatting code here.\r\n// Put the cursor on an expression to see its value.\r\n[%artist% - ]%title%"
+	"// Type your title formatting code here.\r\n// Put the cursor on an expression to see its value.\r\n[%artist% - ]%title%"
 #endif
-														 );
+);
+
+namespace ATL
+{
+	int GetModuleFileName(HMODULE hModule, CString& strFileName)
+	{
+		TCHAR buffer[MAX_PATH] = {0};
+		::SetLastError(ERROR_SUCCESS);
+		DWORD nLength = ::GetModuleFileName(hModule, buffer, MAX_PATH);
+		if (nLength == MAX_PATH && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+		{
+			DWORD nBufferSize = 256;
+			do {
+				nBufferSize *= 2;
+				LPTSTR pszFileName = strFileName.GetBufferSetLength(nBufferSize);
+				nLength = ::GetModuleFileName(hModule, pszFileName, nBufferSize);
+				strFileName.ReleaseBuffer(nLength);
+			} while (nLength == nBufferSize && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+		}
+		else
+		{
+			strFileName.SetString(buffer, nLength);
+		}
+
+		return strFileName.GetLength();
+	}
+}
+
+CLibraryScope::CLibraryScope() : m_hDll(NULL)
+{
+}
+
+CLibraryScope::CLibraryScope(LPCTSTR pszName) : m_hDll(NULL)
+{
+	LoadLibrary(pszName);
+}
+
+bool CLibraryScope::LoadLibrary(LPCTSTR pszName)
+{
+	ATLASSERT(m_hDll == NULL);
+
+	m_hDll = ::LoadLibrary(pszName);
+
+	return m_hDll != NULL;
+}
+
+CLibraryScope::~CLibraryScope()
+{
+	if (m_hDll != NULL)
+	{
+		::FreeLibrary(m_hDll);
+		m_hDll = NULL;
+	}
+}
 
 namespace ast
 {
@@ -129,43 +180,23 @@ CWindow CTitleFormatSandboxDialog::g_wndInstance;
 
 CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_window_position)
 {
-	static bool g_init = false;
-
-	if (!g_init)
-	{
-		INITCOMMONCONTROLSEX icce;
-		icce.dwSize = sizeof(icce);
-		icce.dwICC = ICC_TREEVIEW_CLASSES;
-
-		::InitCommonControlsEx(&icce);
-
-		g_init = true;
-	}
-
 	pfc::string8 install_dir = pfc::string_directory(core_api::get_my_full_path());
 
 	pfc::string8 scilexer_path = install_dir;
 	scilexer_path += "\\SciLexer.dll";
 
-	m_hSciLexerDll = ::uLoadLibrary(scilexer_path);
+	//m_sciLexerScope.LoadLibrary(pfc::stringcvt::string_os_from_utf8(scilexer_path.get_ptr()));
+	m_sciLexerScope.LoadLibrary(TEXT("SciLexer.dll"));
 
 	pfc::string8 lextitleformat_path = install_dir;
 	lextitleformat_path += "\\LexTitleformat.dll";
 
-	m_hLexTitleFormatDll = ::uLoadLibrary(lextitleformat_path);
+	m_lexTitleformatScope.LoadLibrary(pfc::stringcvt::string_os_from_utf8(lextitleformat_path.get_ptr()));
 }
 
 CTitleFormatSandboxDialog::~CTitleFormatSandboxDialog()
 {
-	if (m_hSciLexerDll != NULL)
-	{
-			FreeLibrary(m_hSciLexerDll);
-	}
-
-	if (m_hLexTitleFormatDll != NULL)
-	{
-		::FreeLibrary(m_hLexTitleFormatDll);
-	}
+	RegisterClassEx;
 }
 
 bool CTitleFormatSandboxDialog::pretranslate_message(MSG *pMsg)
@@ -185,21 +216,42 @@ void CTitleFormatSandboxDialog::ActivateDialog()
 	if (!g_wndInstance)
 	{
 		CTitleFormatSandboxDialog * dlg = new CTitleFormatSandboxDialog();
+#if 0
 		if (dlg->m_hSciLexerDll != NULL)
 		{
-			dlg->Create(core_api::get_main_window());
-			dlg->ShowWindow(SW_SHOW);
+#endif
+			if (dlg->Create(core_api::get_main_window()) != NULL)
+			{
+				dlg->ShowWindow(SW_SHOW);
+			}
+			else
+			{
+				DWORD dwError = ::GetLastError();
+				pfc::string8 message;
+				console::formatter() << core_api::get_my_file_name() << ": Could not create window: "
+					<< (uFormatSystemErrorMessage(message, dwError) ? message.get_ptr() : pfc::format_hex(dwError).get_ptr());
+			}
+#if 0
 		}
 		else
 		{
 			console::formatter() << core_api::get_my_file_name() << ": Could not load SciLexer.dll";
 			delete dlg;
 		}
+#endif
 	}
 	else
 	{
 		g_wndInstance.SetFocus();
 	}
+}
+
+COLORREF BlendColor(COLORREF color1, DWORD weight1, COLORREF color2, DWORD weight2)
+{
+	int r = (GetRValue(color1) * weight1 + GetRValue(color2) * weight2) / (weight1 + weight2);
+	int g = (GetGValue(color1) * weight1 + GetGValue(color2) * weight2) / (weight1 + weight2);
+	int b = (GetBValue(color1) * weight1 + GetBValue(color2) * weight2) / (weight1 + weight2);
+	return RGB(r, g, b);
 }
 
 void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
@@ -214,35 +266,42 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	sciLexer.StyleSetBack(STYLE_DEFAULT, RGB(255, 255, 255));
 	sciLexer.StyleClearAll();
 
+	sciLexer.SetSelFore(true, RGB(255, 255, 255));
+	sciLexer.SetSelBack(true, RGB(51, 153, 255));
+
+	const COLORREF background = RGB(255, 255, 255);
+
 	// Comments
 	sciLexer.StyleSetFore(1 /*SCE_TITLEFORMAT_COMMENTLINE*/, RGB(0, 128, 0));
-	sciLexer.StyleSetFore(1 + 64 /*SCE_TITLEFORMAT_COMMENTLINE | inactive*/, RGB(128, 255, 128));
+	sciLexer.StyleSetFore(1 + 64 /*SCE_TITLEFORMAT_COMMENTLINE | inactive*/, BlendColor(RGB(0, 128, 0), 1, background, 1));
 
 	// Operators
+	sciLexer.StyleSetFore(2 /*SCE_TITLEFORMAT_OPERATOR*/, RGB(0, 0, 0));
 	sciLexer.StyleSetBold(2 /*SCE_TITLEFORMAT_OPERATOR*/, true);
+	sciLexer.StyleSetFore(2 + 64 /*SCE_TITLEFORMAT_OPERATOR | inactive*/, BlendColor(RGB(0, 0, 0), 1, background, 1));
 	sciLexer.StyleSetBold(2 + 64 /*SCE_TITLEFORMAT_OPERATOR | inactive*/, true);
-	sciLexer.StyleSetFore(2 + 64 /*SCE_TITLEFORMAT_OPERATOR | inactive*/, RGB(128, 128, 128));
 
 	// Fields
 	sciLexer.StyleSetFore(3 /*SCE_TITLEFORMAT_FIELD*/, RGB(0, 0, 192));
-	sciLexer.StyleSetFore(3 + 64 /*SCE_TITLEFORMAT_FIELD | inactive*/, RGB(128, 128, 224));
+	sciLexer.StyleSetFore(3 + 64 /*SCE_TITLEFORMAT_FIELD | inactive*/, BlendColor(RGB(0, 0, 192), 1, background, 1));
 
 	// Strings (Single quoted string)
+	sciLexer.StyleSetFore(4 /*SCE_TITLEFORMAT_STRING*/, RGB(0, 0, 0));
 	sciLexer.StyleSetItalic(4 /*SCE_TITLEFORMAT_STRING*/, true);
+	sciLexer.StyleSetFore(4 + 64 /*SCE_TITLEFORMAT_STRING | inactive*/, BlendColor(RGB(0, 0, 0), 1, background, 1));
 	sciLexer.StyleSetItalic(4 + 64 /*SCE_TITLEFORMAT_STRING | inactive*/, true);
-	sciLexer.StyleSetFore(4 + 64 /*SCE_TITLEFORMAT_STRING | inactive*/, RGB(128, 128, 128));
 
 	// Text (Unquoted string)
-	//sciLexer.StyleSetBack(5 /*SCE_TITLEFORMAT_LITERALSTRING*/, RGB(255, 255, 128));
-	sciLexer.StyleSetFore(5 + 64 /*SCE_TITLEFORMAT_LITERALSTRING | inactive*/, RGB(128, 128, 128));
+	sciLexer.StyleSetFore(5 /*SCE_TITLEFORMAT_LITERALSTRING*/, RGB(0, 0, 0));
+	sciLexer.StyleSetFore(5 + 64 /*SCE_TITLEFORMAT_LITERALSTRING | inactive*/, BlendColor(RGB(0, 0, 0), 1, background, 1));
 
 	// Characters (%%, &&, '')
-	//sciLexer.StyleSetFore(6 /*SCE_TITLEFORMAT_SPECIALSTRING*/, RGB(128, 128, 128));
-	sciLexer.StyleSetFore(6 + 64/*SCE_TITLEFORMAT_SPECIALSTRING | inactive*/, RGB(128, 128, 128));
+	sciLexer.StyleSetFore(6 /*SCE_TITLEFORMAT_SPECIALSTRING*/, RGB(0, 0, 0));
+	sciLexer.StyleSetFore(6 + 64/*SCE_TITLEFORMAT_SPECIALSTRING | inactive*/, BlendColor(RGB(0, 0, 0), 1, background, 1));
 
 	// Functions
 	sciLexer.StyleSetFore(7 /*SCE_TITLEFORMAT_IDENTIFIER*/, RGB(192, 0, 192));
-	sciLexer.StyleSetFore(7 + 64 /*SCE_TITLEFORMAT_IDENTIFIER | inactive*/, RGB(224, 128, 224));
+	sciLexer.StyleSetFore(7 + 64 /*SCE_TITLEFORMAT_IDENTIFIER | inactive*/, BlendColor(RGB(192, 0, 192), 1, background, 1));
 
 	sciLexer.MarkerDefinePixmap(0, g_pixmap_false);
 	sciLexer.MarkerDefinePixmap(1, g_pixmap_true);
@@ -281,6 +340,10 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	SetupTitleFormatStyles(m_editor);
 	SetupTitleFormatStyles(m_sciLexerFragment);
 
+	//m_editor.SetMarginTypeN(0, SC_MARGIN_NUMBER);
+	//m_editor.SetMarginWidthN(0, m_editor.TextWidth(STYLE_LINENUMBER, "_999"));
+	//m_editor.SetMarginWidthN(0, 80);
+
 	m_editor.StyleSetFont(STYLE_CALLTIP, "Tahoma");
 	m_editor.StyleSetFore(STYLE_CALLTIP, GetSysColor(COLOR_INFOTEXT));
 	m_editor.StyleSetBack(STYLE_CALLTIP, GetSysColor(COLOR_INFOBK));
@@ -306,7 +369,14 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_editor.IndicSetFore(indicator_error, RGB(255, 0, 0));
 
 	CImageList imageList;
-	imageList.CreateFromImage(IDB_BITMAP1, 16, 2, RGB(255, 0, 255), IMAGE_BITMAP);
+#if 1
+	imageList.CreateFromImage(IDB_SYMBOLS, 16, 2, RGB(255, 0, 255), IMAGE_BITMAP);
+#else
+	imageList.Create(16, 16, ILC_COLOR32, 6, 2);
+	CBitmap image;
+	image.Attach((HBITMAP) ::LoadImage(core_api::get_my_instance(), MAKEINTRESOURCE(IDB_SYMBOLS32), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
+	imageList.Add(image);
+#endif
 	m_treeScript.SetImageList(imageList);
 
 	m_script_update_pending = true;
@@ -314,6 +384,7 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 
 
 	m_editor.SetText(cfg_format);
+	m_editor.SetEmptySelection(0);
 	m_editor.EmptyUndoBuffer();
 	m_editor.SetUndoCollection(true);
 
@@ -323,7 +394,7 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 
 	g_wndInstance = *this;
 
-	return FALSE;
+	return TRUE;
 }
 
 void CTitleFormatSandboxDialog::OnDestroy()
@@ -352,7 +423,30 @@ LRESULT CTitleFormatSandboxDialog::OnScriptModified(LPNMHDR pnmh)
 
 LRESULT CTitleFormatSandboxDialog::OnScriptUpdateUI(LPNMHDR pnmh)
 {
-	//console::formatter() << "OnScriptUpdateUI";
+	SCNotification * pnmsc = (SCNotification *) pnmh;
+#ifdef _DEBUG
+	{
+		console::formatter fmt;
+		fmt << "[foo_tfsandbox] OnScriptUpdateUI()";
+		if ((pnmsc->updated & SC_UPDATE_CONTENT) != 0)
+		{
+			fmt << " SC_UPDATE_CONTENT";
+		}
+		if ((pnmsc->updated & SC_UPDATE_SELECTION) != 0)
+		{
+			fmt << " SC_UPDATE_SELECTION";
+		}
+		if ((pnmsc->updated & SC_UPDATE_H_SCROLL) != 0)
+		{
+			fmt << " SC_UPDATE_H_SCROLL";
+		}
+		if ((pnmsc->updated & SC_UPDATE_V_SCROLL) != 0)
+		{
+			fmt << " SC_UPDATE_V_SCROLL";
+		}
+	}
+#endif
+
 	if (!m_script_update_pending && GetFocus() == m_editor)
 	{
 		int selStart = m_editor.GetSelectionStart();
@@ -415,7 +509,7 @@ void CTitleFormatSandboxDialog::UpdateScript()
 
 		int error_count = m_debugger.get_parser_errors(errors);
 
-		//console::formatter() << "[foo_tfsandbox] Script parsed in "<<pfc::format_float(parse_time, 6)<<"s";
+		console::formatter() << "[foo_tfsandbox] Script parsed in "<<pfc::format_float(parse_time, 6)<< " seconds";
 
 		if (error_count == 0)
 		{
@@ -534,7 +628,13 @@ namespace ast
 
 void CTitleFormatSandboxDialog::UpdateScriptSyntaxTree()
 {
+	pfc::hires_timer build_timer;
+	build_timer.start();
+
 	ast::visitor_build_syntax_tree(m_debugger).run(m_treeScript, m_debugger.get_root());
+
+	double build_time = build_timer.query();
+	console::formatter() << "[foo_tfsandbox] Script structure built in " << pfc::format_float(build_time, 6) << " seconds";
 }
 
 void CTitleFormatSandboxDialog::UpdateTrace()
@@ -546,7 +646,15 @@ void CTitleFormatSandboxDialog::UpdateTrace()
 	metadb_handle_ptr track;
 	metadb::g_get_random_handle(track);
 
+	pfc::hires_timer trace_timer;
+	trace_timer.start();
+
 	m_debugger.trace(track);
+
+	double trace_time = trace_timer.query();
+
+	console::formatter() << "[foo_tfsandbox] Script traced in " << pfc::format_float(trace_time, 6) << " seconds";
+
 	UpdateInactiveCodeIndicator();
 	UpdateScriptSyntaxTree();
 

@@ -50,7 +50,10 @@
     <None Include="titleformat.atg">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="bitmap1.bmp">
+    <None Include="symbols.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="symbols32.bmp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -105,7 +105,8 @@ END
 // Bitmap
 //
 
-IDB_BITMAP1             BITMAP                  "bitmap1.bmp"
+IDB_SYMBOLS             BITMAP                  "symbols.bmp"
+IDB_SYMBOLS32           BITMAP                  "symbols32.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -59,8 +59,12 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>../../../sdk/2011-03-11/foobar2000/shared</AdditionalLibraryDirectories>
-      <AdditionalDependencies>shared.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <AssemblyIdentity>
+      </AssemblyIdentity>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,8 +82,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>../../../sdk/2011-03-11/foobar2000/shared</AdditionalLibraryDirectories>
-      <AdditionalDependencies>shared.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <AssemblyIdentity>foo_tfsandbox, processorArchitecture=x86, version=1.0.0.0, type=win32</AssemblyIdentity>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CustomScanner.cpp" />
@@ -97,10 +104,11 @@
   <ItemGroup>
     <None Include="Parser.frame" />
     <None Include="Scanner.frame" />
+    <None Include="symbols.bmp" />
+    <None Include="symbols32.bmp" />
     <None Include="titleformat.atg">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="bitmap1.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomScanner.h" />
