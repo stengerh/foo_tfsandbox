@@ -196,7 +196,6 @@ CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_win
 
 CTitleFormatSandboxDialog::~CTitleFormatSandboxDialog()
 {
-	RegisterClassEx;
 }
 
 bool CTitleFormatSandboxDialog::pretranslate_message(MSG *pMsg)
@@ -306,7 +305,6 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	sciLexer.MarkerDefinePixmap(0, g_pixmap_false);
 	sciLexer.MarkerDefinePixmap(1, g_pixmap_true);
 
-	int lex1 = sciLexer.GetLexer();
 	sciLexer.SetLexerLanguage("titleformat");
 	ATL::CStringA lexerLanguage;
 	if ((sciLexer.GetLexerLanguage(lexerLanguage) < 0) || (lexerLanguage != "titleformat"))
@@ -318,7 +316,6 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
 	m_editor.Attach(GetDlgItem(IDC_SCRIPT));
-	m_sciLexerFragment.Attach(GetDlgItem(IDC_FRAGMENT));
 	m_editStringValue.Attach(GetDlgItem(IDC_STRINGVALUE));
 	m_editBoolValue.Attach(GetDlgItem(IDC_BOOLVALUE));
 	m_treeScript.Attach(GetDlgItem(IDC_TREE));
@@ -329,26 +326,18 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_editor.SetModEventMask(SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
 	m_editor.SetMouseDwellTime(500);
 
-	m_sciLexerFragment.SetCodePage(SC_CP_UTF8);
-	m_sciLexerFragment.SetModEventMask(0);
-	m_sciLexerFragment.Call(SCI_SETREADONLY, true);
-
 
 	m_editor.CallTipUseStyle(50);
 
 	// Set up styles
 	SetupTitleFormatStyles(m_editor);
-	SetupTitleFormatStyles(m_sciLexerFragment);
 
-	//m_editor.SetMarginTypeN(0, SC_MARGIN_NUMBER);
-	//m_editor.SetMarginWidthN(0, m_editor.TextWidth(STYLE_LINENUMBER, "_999"));
-	//m_editor.SetMarginWidthN(0, 80);
+	m_editor.SetMarginTypeN(0, SC_MARGIN_NUMBER);
+	m_editor.SetMarginWidthN(0, m_editor.TextWidth(STYLE_LINENUMBER, "_99"));
 
 	m_editor.StyleSetFont(STYLE_CALLTIP, "Tahoma");
 	m_editor.StyleSetFore(STYLE_CALLTIP, GetSysColor(COLOR_INFOTEXT));
 	m_editor.StyleSetBack(STYLE_CALLTIP, GetSysColor(COLOR_INFOBK));
-
-	m_editor.SetTwoPhaseDraw(true);
 
 	// inactive code
 	//m_editor.IndicSetStyle(indicator_inactive_code, INDIC_DIAGONAL);
@@ -369,13 +358,13 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_editor.IndicSetFore(indicator_error, RGB(255, 0, 0));
 
 	CImageList imageList;
-#if 1
-	imageList.CreateFromImage(IDB_SYMBOLS, 16, 2, RGB(255, 0, 255), IMAGE_BITMAP);
-#else
+#ifdef USE_ICONS_WITH_ALPHA
 	imageList.Create(16, 16, ILC_COLOR32, 6, 2);
 	CBitmap image;
 	image.Attach((HBITMAP) ::LoadImage(core_api::get_my_instance(), MAKEINTRESOURCE(IDB_SYMBOLS32), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION));
 	imageList.Add(image);
+#else
+	imageList.CreateFromImage(IDB_SYMBOLS, 16, 2, RGB(255, 0, 255), IMAGE_BITMAP);
 #endif
 	m_treeScript.SetImageList(imageList);
 
@@ -475,7 +464,6 @@ void CTitleFormatSandboxDialog::OnSelectAll(UINT uNotifyCode, int nID, CWindow w
 {
 	CWindow wnd = GetFocus();
 	if (wnd == m_editor ||
-		wnd == m_sciLexerFragment ||
 		wnd == m_editStringValue ||
 		wnd == m_editBoolValue)
 	{
@@ -856,23 +844,6 @@ void CTitleFormatSandboxDialog::UpdateFragment(int selStart, int selEnd)
 		console::formatter() << "Exception in UpdateFragment(): " << exc;
 	}
 
-	m_sciLexerFragment.Call(SCI_SETREADONLY, false);
-	if (m_selfrag.get_count() > 0)
-	{
-		TextRange tr;
-		tr.chrg.cpMin = m_selfrag[0]->get_start();
-		tr.chrg.cpMax = m_selfrag[m_selfrag.get_count() - 1]->get_end();
-		pfc::array_t<char> buffer;
-		buffer.set_size(tr.chrg.cpMax - tr.chrg.cpMin + 1);
-		tr.lpstrText = buffer.get_ptr();
-		m_editor.Call(SCI_GETTEXTRANGE, 0, (LPARAM)&tr);
-		m_sciLexerFragment.SetText(buffer.get_ptr());
-	}
-	else
-	{
-		m_sciLexerFragment.SetText("");
-	}
-	m_sciLexerFragment.Call(SCI_SETREADONLY, true);
 	uSetWindowText(m_editStringValue, errors);
 	uSetWindowText(m_editBoolValue, value_bool);
 }

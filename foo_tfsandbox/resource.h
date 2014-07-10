@@ -8,7 +8,7 @@
 #define IDB_SYMBOLS                     108
 #define IDB_SYMBOLS32                   109
 #define IDC_SCRIPT                      1001
-#define IDC_FRAGMENT                    1002
+//#define IDC_FRAGMENT                    1002
 #define IDC_STRINGVALUE                 1003
 #define IDC_BOOLVALUE                   1004
 #define IDC_RICHEDIT21                  1006

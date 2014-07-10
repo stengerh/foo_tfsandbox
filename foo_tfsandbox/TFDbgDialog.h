@@ -49,7 +49,6 @@ public:
 	cfgDialogPositionTracker m_dlgPosTracker;
 
 	CSciLexerCtrl m_editor;
-	CSciLexerCtrl m_sciLexerFragment;
 	CEdit m_editStringValue;
 	CEdit m_editBoolValue;
 
