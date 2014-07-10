@@ -56,6 +56,15 @@
     <None Include="symbols32.bmp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="exclamation.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cross.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="tick.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomScanner.h">
@@ -88,9 +97,15 @@
     <ClInclude Include="titleformat_syntax.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="foo_tfsandbox_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_tfsandbox.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="foo_tfsandbox_version.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

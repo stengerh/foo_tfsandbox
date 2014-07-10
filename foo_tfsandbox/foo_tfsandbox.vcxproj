@@ -102,10 +102,13 @@
     <ClCompile Include="titleformat_syntax.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cross.ico" />
+    <None Include="exclamation.ico" />
     <None Include="Parser.frame" />
     <None Include="Scanner.frame" />
     <None Include="symbols.bmp" />
     <None Include="symbols32.bmp" />
+    <None Include="tick.ico" />
     <None Include="titleformat.atg">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
@@ -121,9 +124,11 @@
     <ClInclude Include="titleformat_analysis.h" />
     <ClInclude Include="titleformat_debug.h" />
     <ClInclude Include="titleformat_syntax.h" />
+    <ClInclude Include="foo_tfsandbox_version.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_tfsandbox.rc" />
+    <ResourceCompile Include="foo_tfsandbox_version.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\sdk\2011-03-11\foobar2000\ATLHelpers\foobar2000_ATL_helpers.vcxproj">

@@ -38,9 +38,6 @@ public:
 		indicator_hint,
 	};
 
-	static const char *g_pixmap_true;
-	static const char *g_pixmap_false;
-
 	CLibraryScope m_sciLexerScope;
 	CLibraryScope m_lexTitleformatScope;
 
@@ -49,8 +46,7 @@ public:
 	cfgDialogPositionTracker m_dlgPosTracker;
 
 	CSciLexerCtrl m_editor;
-	CEdit m_editStringValue;
-	CEdit m_editBoolValue;
+	CSciLexerCtrl m_value;
 
 	CTreeViewCtrl m_treeScript;
 

@@ -55,13 +55,9 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | WS_POPUP | WS_CAPTI
 CAPTION "Title Formatting Sandbox"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_SCRIPT,"Scintilla",WS_CLIPCHILDREN | WS_TABSTOP,7,7,377,174,WS_EX_STATICEDGE
-    LTEXT           "Text value of fragment:",IDC_STATIC,7,187,78,8
-    EDITTEXT        IDC_STRINGVALUE,7,198,378,30,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_STATICEDGE
-    LTEXT           "Boolean value of fragment:",IDC_STATIC,7,239,88,8
-    EDITTEXT        IDC_BOOLVALUE,100,237,40,14,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_STATICEDGE
-    PUSHBUTTON      "&Close",IDCANCEL,469,237,50,14
-    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_LINESATROOT | WS_HSCROLL | WS_TABSTOP,390,7,129,222,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCRIPT,"Scintilla",WS_CLIPCHILDREN | WS_TABSTOP,7,7,377,186,WS_EX_STATICEDGE
+    CONTROL         "",IDC_VALUE,"Scintilla",WS_CLIPCHILDREN | WS_TABSTOP,7,198,377,53,WS_EX_STATICEDGE
+    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_LINESATROOT | WS_HSCROLL | WS_TABSTOP,390,7,129,244,WS_EX_STATICEDGE
 END
 
 
@@ -103,6 +99,17 @@ END
 
 IDB_SYMBOLS             BITMAP                  "symbols.bmp"
 IDB_SYMBOLS32           BITMAP                  "symbols32.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_FUGUE_CROSS         ICON                    "cross.ico"
+IDI_FUGUE_EXCLAMATION   ICON                    "exclamation.ico"
+IDI_FUGUE_TICK          ICON                    "tick.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

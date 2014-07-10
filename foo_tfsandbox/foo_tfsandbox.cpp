@@ -3,11 +3,13 @@
 
 #include "stdafx.h"
 #include "TFDbgDialog.h"
+#include "foo_tfsandbox_version.h"
 
 DECLARE_COMPONENT_VERSION(
-"Title Formatting Sandbox",
-"1.0 alpha 2014-07-07",
-"Copyright (C) 2014 Holger Stenger");
+	COMPONENT_NAME,
+	COMPONENT_VERSION,
+	"Copyright (C) 2014 Holger Stenger"
+);
 
 class string_from_resources
 {

@@ -22,7 +22,11 @@ static cfg_string cfg_format(guid_cfg_format,
 #ifdef _DEBUG
 	"// This is a comment\r\n'test'test$$%%''\r\n$if(%track artist%,'['test'')\r\n// This is another comment\r\n[%comment%]"
 #else
-	"// Type your title formatting code here.\r\n// Put the cursor on an expression to see its value.\r\n[%artist% - ]%title%"
+	"// Type your title formatting code here.\r\n"
+	"// The tree view on the right side shows the structure of the code.\r\n"
+	"// Put the cursor on an expression to see its value in the box below.\r\n"
+	"// The symbol before the first line shows the truth value of the expression. A check mark means true and a cross means false.\r\n"
+	"[%artist% - ]%title%"
 #endif
 );
 
@@ -102,74 +106,6 @@ namespace ast
 	};
  
 }
-
-const char *CTitleFormatSandboxDialog::g_pixmap_false =
-"/* XPM */\
-static const char *false-simple_xpm[] = {\
-/* width height num_colors chars_per_pixel */\
-\"    16    16        8            1\",\
-/* colors */\
-\"  c None\",\
-\"# c #e00000\",\
-\". c #404040\",\
-\"a c #000000\",\
-\"b c #000000\",\
-\"c c #000000\",\
-\"d c #000000\",\
-\"e c #000000\",\
-/* pixels */\
-\"                \",\
-\"                \",\
-\"   ##########   \",\
-\"    ##......#.  \",\
-\"    ##.      .  \",\
-\"    ##.         \",\
-\"    ##.   #     \",\
-\"    #######.    \",\
-\"    ##....#.    \",\
-\"    ##.    .    \",\
-\"    ##.         \",\
-\"    ##.         \",\
-\"    ##.         \",\
-\"   ####         \",\
-\"    ....        \",\
-\"                \"\
-};\
-";
-
-const char *CTitleFormatSandboxDialog::g_pixmap_true =
-"/* XPM */\
-static const char *true-simple_xpm[] = {\
-/* width height num_colors chars_per_pixel */\
-\"    16    16        8            1\",\
-/* colors */\
-\"  c None\",\
-\"# c #00c000\",\
-\". c #404040\",\
-\"a c #000000\",\
-\"b c #000000\",\
-\"c c #000000\",\
-\"d c #000000\",\
-\"e c #000000\",\
-/* pixels */\
-\"                \",\
-\"                \",\
-\"   ##########   \",\
-\"   #...##...#.  \",\
-\"   #.  ##.  #.  \",\
-\"    .  ##.   .  \",\
-\"       ##.      \",\
-\"       ##.      \",\
-\"       ##.      \",\
-\"       ##.      \",\
-\"       ##.      \",\
-\"       ##.      \",\
-\"       ##.      \",\
-\"      ####      \",\
-\"       ....     \",\
-\"                \"\
-};\
-";
 
 bool CTitleFormatSandboxDialog::find_fragment(ast::fragment &out, int start, int end)
 {
@@ -253,12 +189,83 @@ COLORREF BlendColor(COLORREF color1, DWORD weight1, COLORREF color2, DWORD weigh
 	return RGB(r, g, b);
 }
 
+static void LoadMarkerIcon(CSciLexerCtrl sciLexer, int markerNumber, LPCTSTR name)
+{
+	CIcon icon;
+	icon.LoadIcon(name, 16, 16);
+
+	ICONINFO iconInfo;
+	BOOL succeeded = icon.GetIconInfo(&iconInfo);
+
+	CBitmapHandle imageColor = iconInfo.hbmColor;
+
+	BITMAP bitmap;
+	succeeded = imageColor.GetBitmap(&bitmap);
+
+	DWORD dwCount = bitmap.bmWidthBytes * bitmap.bmHeight;
+
+	std::vector<char> pixels;
+	pixels.resize(dwCount);
+
+	DWORD dwBytesCopied = imageColor.GetBitmapBits(dwCount, (LPVOID) &pixels[0]);
+
+	for (int y = 0; y < 16; ++y)
+	{
+		for (int x = 0; x < 16; ++x)
+		{
+			int base = (y * 16 + x) * 4;
+			char r = pixels[base + 0];
+			char g = pixels[base + 1];
+			char b = pixels[base + 2];
+			//char a = pixels[base + 3];
+			pixels[base + 2] = r;
+			pixels[base + 1] = g;
+			pixels[base + 0] = b;
+			//pixels[base + 0] = a;
+		}
+	}
+
+	sciLexer.RGBAImageSetWidth(16);
+	sciLexer.RGBAImageSetHeight(16);
+	sciLexer.RGBAImageSetScale(100);
+	sciLexer.MarkerDefineRGBAImage(markerNumber, &pixels[0]);
+#if 0
+	BITMAPINFO bitmapInfo;
+	bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
+	bitmapInfo.bmiHeader.biWidth = 16;
+	bitmapInfo.bmiHeader.biHeight = 16;
+	bitmapInfo.bmiHeader.biPlanes = 1;
+	bitmapInfo.bmiHeader.biBitCount = 32;
+	bitmapInfo.bmiHeader.biCompression = BI_RGB;
+	bitmapInfo.bmiHeader.biSizeImage = 0;
+	bitmapInfo.bmiHeader.biXPelsPerMeter = 300;
+	bitmapInfo.bmiHeader.biYPelsPerMeter = 300;
+	bitmapInfo.bmiHeader.biClrUsed = 0;
+	bitmapInfo.bmiHeader.biClrImportant = 0;
+
+	char * pixels = 0;
+
+	CBitmap imageColor;
+	imageColor.CreateDIBSection(NULL, &bitmapInfo, DIB_RGB_COLORS, (void **)&pixels, NULL, 0);
+
+	imageColor.GetDIBits();
+	CMemoryDC dc;
+
+	CBitmap image;
+	image.CreateDIBSection();
+	image.CreateCompatibleBitmap(dc, 16, 16);
+
+	LPCSTR pixels;
+	sciLexer.MarkerDefineRGBAImage(markerNumber, pixels);
+#endif
+}
+
 void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 {
-	sciLexer.Call(SCI_SETMARGINWIDTHN, 1, 0);
+	sciLexer.SetMarginWidthN(1, 0);
 
-	sciLexer.Call(SCI_SETWRAPMODE, SC_WRAP_WORD);
-	sciLexer.Call(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_END);
+	sciLexer.SetWrapMode(SC_WRAP_WORD);
+	sciLexer.SetWrapVisualFlags(SC_WRAPVISUALFLAG_END);
 
 	sciLexer.StyleSetFont(STYLE_DEFAULT, "Courier New");
 	sciLexer.StyleSetFore(STYLE_DEFAULT, RGB(0, 0, 0));
@@ -302,9 +309,6 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	sciLexer.StyleSetFore(7 /*SCE_TITLEFORMAT_IDENTIFIER*/, RGB(192, 0, 192));
 	sciLexer.StyleSetFore(7 + 64 /*SCE_TITLEFORMAT_IDENTIFIER | inactive*/, BlendColor(RGB(192, 0, 192), 1, background, 1));
 
-	sciLexer.MarkerDefinePixmap(0, g_pixmap_false);
-	sciLexer.MarkerDefinePixmap(1, g_pixmap_true);
-
 	sciLexer.SetLexerLanguage("titleformat");
 	ATL::CStringA lexerLanguage;
 	if ((sciLexer.GetLexerLanguage(lexerLanguage) < 0) || (lexerLanguage != "titleformat"))
@@ -316,8 +320,7 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
 	m_editor.Attach(GetDlgItem(IDC_SCRIPT));
-	m_editStringValue.Attach(GetDlgItem(IDC_STRINGVALUE));
-	m_editBoolValue.Attach(GetDlgItem(IDC_BOOLVALUE));
+	m_value.Attach(GetDlgItem(IDC_VALUE));
 	m_treeScript.Attach(GetDlgItem(IDC_TREE));
 
 	m_editor.LoadLexerLibrary("LexTitleformat.dll");
@@ -334,6 +337,17 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 
 	m_editor.SetMarginTypeN(0, SC_MARGIN_NUMBER);
 	m_editor.SetMarginWidthN(0, m_editor.TextWidth(STYLE_LINENUMBER, "_99"));
+
+	m_value.SetWrapMode(SC_WRAP_WORD);
+	m_value.SetWrapVisualFlags(SC_WRAPVISUALFLAG_END);
+
+	m_value.SetMarginTypeN(0, SC_MARGIN_NUMBER);
+	m_value.SetMarginWidthN(0, m_value.TextWidth(STYLE_LINENUMBER, "_99"));
+
+	m_value.SetMarginTypeN(1, SC_MARGIN_BACK);
+	m_value.SetMarginWidthN(1, 16);
+
+	m_value.SetReadOnly(true);
 
 	m_editor.StyleSetFont(STYLE_CALLTIP, "Tahoma");
 	m_editor.StyleSetFore(STYLE_CALLTIP, GetSysColor(COLOR_INFOTEXT));
@@ -356,6 +370,10 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	// errors
 	m_editor.IndicSetStyle(indicator_error, INDIC_SQUIGGLE);
 	m_editor.IndicSetFore(indicator_error, RGB(255, 0, 0));
+
+	LoadMarkerIcon(m_value, 0, MAKEINTRESOURCE(IDI_FUGUE_CROSS));
+	LoadMarkerIcon(m_value, 1, MAKEINTRESOURCE(IDI_FUGUE_TICK));
+	LoadMarkerIcon(m_value, 2, MAKEINTRESOURCE(IDI_FUGUE_EXCLAMATION));
 
 	CImageList imageList;
 #ifdef USE_ICONS_WITH_ALPHA
@@ -464,8 +482,7 @@ void CTitleFormatSandboxDialog::OnSelectAll(UINT uNotifyCode, int nID, CWindow w
 {
 	CWindow wnd = GetFocus();
 	if (wnd == m_editor ||
-		wnd == m_editStringValue ||
-		wnd == m_editBoolValue)
+		wnd == m_value)
 	{
 		CEdit edit = wnd;
 		edit.SetSelAll();
@@ -505,7 +522,10 @@ void CTitleFormatSandboxDialog::UpdateScript()
 		}
 		else
 		{
-			uSetWindowText(m_editStringValue, errors);
+			m_value.SetReadOnly(false);
+			m_value.SetText(errors);
+			m_value.SetReadOnly(true);
+			m_value.MarkerAdd(0, 2);
 		}
 	}
 	catch (std::exception const & exc)
@@ -576,7 +596,7 @@ namespace ast
 		void visit(condition_expression *n)
 		{
 			builder_helper helper(parent, parent);
-			parent = InsertItem("[...]", n->kind(), n);
+			parent = InsertItem("[ ... ]", n->kind(), n);
 
 			param_index = ~0;
 			n->get_param()->accept(this);
@@ -790,7 +810,7 @@ void CTitleFormatSandboxDialog::UpdateFragment(int selStart, int selEnd)
 
 	pfc::vartoggle_t<bool> blah(m_updating_fragment, true);
 
-	pfc::string_formatter errors, value_string, value_bool;
+	pfc::string_formatter value_string;
 
 	try
 	{
@@ -807,6 +827,7 @@ void CTitleFormatSandboxDialog::UpdateFragment(int selStart, int selEnd)
 
 			bool flag = false;
 			bool flag_set = false;
+
 			for (t_size index = 0; index < selfrag.get_count(); ++index)
 			{
 				if (selfrag[index]->kind() != ast::node::kind_comment)
@@ -821,7 +842,6 @@ void CTitleFormatSandboxDialog::UpdateFragment(int selStart, int selEnd)
 					}
 				}
 			}
-			if (flag_set) value_bool = flag ? "true" : "false";
 
 			m_editor.SetIndicatorCurrent(indicator_fragment);
 			m_editor.SetIndicatorValue(1);
@@ -835,17 +855,20 @@ void CTitleFormatSandboxDialog::UpdateFragment(int selStart, int selEnd)
 				}
 			}
 
-			if (errors.length() > 0) errors << "\r\n";
-			errors << value_string;
+			m_value.SetReadOnly(false);
+			m_value.SetText(value_string);
+			m_value.SetReadOnly(true);
+			m_value.MarkerDeleteAll(0);
+			m_value.MarkerDeleteAll(1);
+			m_value.MarkerAdd(0, flag ? 1 : 0);
 		}
 	}
 	catch (std::exception const & exc)
 	{
 		console::formatter() << "Exception in UpdateFragment(): " << exc;
 	}
-
-	uSetWindowText(m_editStringValue, errors);
-	uSetWindowText(m_editBoolValue, value_bool);
+	//uSetWindowText(m_editStringValue, errors);
+	//uSetWindowText(m_editBoolValue, value_bool);
 }
 
 void CTitleFormatSandboxDialog::OnTimer(UINT_PTR nIDEvent)
