@@ -7,6 +7,14 @@
 #define VERSION_SCINTILLA "3.4.4"
 #define VERSION_WORDS 3, 4, 4, 0
 
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif
+
+#ifndef ISOLATIONAWARE_MANIFEST_RESOURCE_ID
+#define ISOLATIONAWARE_MANIFEST_RESOURCE_ID 2
+#endif
+
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION	VERSION_WORDS
 PRODUCTVERSION	VERSION_WORDS
@@ -34,4 +42,16 @@ BEGIN
 			VALUE	"ProductVersion",	VERSION_SCINTILLA "\0"
 		END
 	END
+END
+
+ISOLATIONAWARE_MANIFEST_RESOURCE_ID RT_MANIFEST
+BEGIN
+	"<assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">"
+	"<assemblyIdentity name=""SciLexer"" processorArchitecture=""x86"" type=""win32"" version=""" VERSION_SCINTILLA ".0"">"
+	"</assemblyIdentity>"
+	"<file name=""SciLexer.dll"">"
+	"<windowClass>Scintilla</windowClass>"
+	"<windowClass>CallTip</windowClass>"
+	"</file>"
+	"</assembly>"
 END
