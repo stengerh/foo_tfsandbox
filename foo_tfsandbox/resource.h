@@ -10,6 +10,7 @@
 #define IDI_FUGUE_CROSS                 110
 #define IDI_FUGUE_EXCLAMATION           111
 #define IDI_FUGUE_TICK                  112
+#define IDI_FUGUE_EXCLAMATION_SMALL     113
 #define IDC_SCRIPT                      1001
 #define IDC_STRINGVALUE                 1003
 #define IDC_BOOLVALUE                   1004

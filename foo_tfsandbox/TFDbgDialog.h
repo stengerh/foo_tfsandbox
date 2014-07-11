@@ -46,7 +46,7 @@ public:
 	cfgDialogPositionTracker m_dlgPosTracker;
 
 	CSciLexerCtrl m_editor;
-	CSciLexerCtrl m_value;
+	CSciLexerCtrl m_preview;
 
 	CTreeViewCtrl m_treeScript;
 
@@ -88,6 +88,7 @@ public:
 	void UpdateInactiveCodeIndicator();
 
 	void SetupTitleFormatStyles(CSciLexerCtrl sciLexer);
+	void SetupPreviewStyles(CSciLexerCtrl sciLexer);
 
 	bool find_fragment(ast::fragment &out, int start, int end);
 	inline bool find_fragment(ast::fragment &out, int pos) {return find_fragment(out, pos, pos);}
@@ -109,6 +110,7 @@ public:
 		NOTIFY_HANDLER_EX(IDC_SCRIPT, SCN_DWELLEND, OnScriptDwellEnd)
 		NOTIFY_HANDLER_EX(IDC_SCRIPT, SCN_CALLTIPCLICK, OnScriptCallTipClick)
 		NOTIFY_HANDLER_EX(IDC_TREE, TVN_SELCHANGED, OnTreeSelChanged)
+		NOTIFY_HANDLER_EX(IDC_TREE, NM_CUSTOMDRAW, OnTreeCustomDraw)
 	END_MSG_MAP()
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
@@ -122,4 +124,5 @@ public:
 	LRESULT OnScriptDwellEnd(LPNMHDR pnmh);
 	LRESULT OnScriptCallTipClick(LPNMHDR pnmh);
 	LRESULT OnTreeSelChanged(LPNMHDR pnmh);
+	LRESULT OnTreeCustomDraw(LPNMHDR pnmh);
 };

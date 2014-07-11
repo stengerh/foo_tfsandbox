@@ -60,6 +60,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>../../../sdk/2011-03-11/foobar2000/shared</AdditionalLibraryDirectories>
       <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <Manifest>
       <AssemblyIdentity>

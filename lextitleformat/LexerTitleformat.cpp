@@ -182,25 +182,31 @@ void LexerTitleformat::Fold(unsigned int startPos, int lengthDoc, int initStyle,
 
 	int startLine = styler.GetLine(startPos);
 	int levelPrev = styler.LevelAt(startLine) & SC_FOLDLEVELNUMBERMASK;
+	bool commentPrev = false;
+	if (startLine > 0) {
+		commentPrev = styler.Match(styler.LineStart(startLine - 1), "//");
+	}
 
 	int lastLine = styler.GetLine(lengthDoc);
 
 	for (int line = startLine; line < lastLine; ++line) {
-		int level = 0;
+		int level = SC_FOLDLEVELBASE;
 
-		if (styler.Match(styler.LineStart(line), "//")) {
-			level = 1;
+		bool comment = styler.Match(styler.LineStart(line), "//");
+		if (comment && commentPrev) {
+			level += 1;
 		}
 
 		int levelAndFlags = level;
 
-		if (level > levelPrev) {
+		if (comment && !commentPrev) {
 			levelAndFlags |= SC_FOLDLEVELHEADERFLAG;
 		}
 
 		styler.SetLevel(line, levelAndFlags);
 
 		levelPrev = level;
+		commentPrev = comment;
 	}
 }
 

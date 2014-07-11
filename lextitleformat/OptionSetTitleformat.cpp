@@ -9,6 +9,10 @@
 
 #include "OptionSetTiteformat.h"
 
+OptionsTitleformat::OptionsTitleformat() {
+	fold = false;
+}
+
 const char * OptionSetTitleformat::wordLists[] = {
 	"Control flow functions",
 	"Variable access functions",

@@ -7,6 +7,7 @@ using namespace Scintilla;
 
 struct OptionsTitleformat {
 	bool fold;
+	OptionsTitleformat();
 };
 
 class OptionSetTitleformat : public OptionSet<OptionsTitleformat> {
