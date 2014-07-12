@@ -23,6 +23,9 @@
 #include "LexerModule.h"
 #include "OptionSet.h"
 
+#include "ILexerTitleformat.h"
+
+#include "LexerTitleformatPrivateCall.h"
 #include "OptionSetTiteformat.h"
 #include "LexerTitleformat.h"
 

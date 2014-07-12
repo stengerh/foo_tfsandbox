@@ -5,17 +5,6 @@
 using namespace Scintilla;
 #endif
 
-enum SCE_TITLEFORMAT {
-	SCE_TITLEFORMAT_DEFAULT = 0,
-	SCE_TITLEFORMAT_COMMENT = 1,
-	SCE_TITLEFORMAT_OPERATOR = 2,
-	SCE_TITLEFORMAT_FIELD = 3,
-	SCE_TITLEFORMAT_STRING = 4,
-	SCE_TITLEFORMAT_LITERALSTRING = 5,
-	SCE_TITLEFORMAT_SPECIALSTRING = 6,
-	SCE_TITLEFORMAT_IDENTIFIER = 7,
-};
-
 class LexerTitleformat : public LexerBase {
 public:
 	static ILexer *LexerFactoryTitleformat();
@@ -36,7 +25,7 @@ public:
 private:
 	OptionsTitleformat options;
 	OptionSetTitleformat optionSet;
-	std::vector< std::pair<int, int> > inactiveRanges;
+	LexerTitleformatPrivateCall * privateCall;
 };
 
 #endif // LEXTITLEFORMAT_H

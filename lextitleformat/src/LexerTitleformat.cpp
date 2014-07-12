@@ -23,6 +23,9 @@
 #include "OptionSet.h"
 #include "StyleContext.h"
 
+#include "ILexerTitleformat.h"
+
+#include "LexerTitleformatPrivateCall.h"
 #include "OptionSetTiteformat.h"
 #include "LexerTitleformat.h"
 
@@ -55,9 +58,14 @@ ILexer *LexerTitleformat::LexerFactoryTitleformat() {
 }
 
 LexerTitleformat::LexerTitleformat() {
+	privateCall = new LexerTitleformatPrivateCall();
 }
 
 LexerTitleformat::~LexerTitleformat() {
+	if (privateCall != 0) {
+		privateCall->Release();
+		privateCall = 0;
+	}
 }
 
 const char * LexerTitleformat::PropertyNames() {
@@ -94,7 +102,8 @@ void LexerTitleformat::Lex(unsigned int startPos, int lengthDoc, int initStyle, 
 		}
 	};
 
-	auto currentRange = std::lower_bound(inactiveRanges.begin(), inactiveRanges.end(), sc.currentPos, pred());
+	int rangeCount = privateCall->GetInactiveRangeCount();
+	int currentRange = privateCall->GetInactiveRangeLowerBound(sc.currentPos);
 
 	int inactiveFlag = 0;
 
@@ -138,16 +147,10 @@ void LexerTitleformat::Lex(unsigned int startPos, int lengthDoc, int initStyle, 
 		if (sc.state == SCE_TITLEFORMAT_DEFAULT) {
 			inactiveFlag = 0;
 
-			while ((currentRange != inactiveRanges.end()) &&
-				(sc.currentPos >= currentRange->first) &&
-				((sc.currentPos - currentRange->first) >= currentRange->second))
-			{
-				++currentRange;
-			}
+			currentRange = privateCall->GetInactiveRangeLowerBound(sc.currentPos);
 
-			if ((currentRange != inactiveRanges.end()) &&
-				(sc.currentPos >= currentRange->first) &&
-				((sc.currentPos - currentRange->first) < currentRange->second)) {
+			if ((currentRange != rangeCount) &&
+				privateCall->InactiveRangeContainsCharacter(currentRange, sc.currentPos)) {
 					inactiveFlag = 64;
 			}
 
@@ -211,14 +214,9 @@ void LexerTitleformat::Fold(unsigned int startPos, int lengthDoc, int initStyle,
 }
 
 void * LexerTitleformat::PrivateCall(int operation, void *pointer) {
-	if (operation == 1234 && pointer != 0)
-	{
-		inactiveRanges.clear();
-		const int * const ranges = reinterpret_cast<const int * const>(pointer);
-		for (size_t index = 0; ranges[index] != -1 && ranges[index+1] != -1; index += 2)
-		{
-			inactiveRanges.push_back(std::pair<int, int>(ranges[index], ranges[index+1]));
-		}
+	if (operation == SPC_TITLEFORMAT_GETINTERFACE && pointer == 0) {
+		privateCall->AddRef();
+		return privateCall;
 	}
 
 	return 0;
