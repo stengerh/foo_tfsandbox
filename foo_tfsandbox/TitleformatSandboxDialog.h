@@ -7,20 +7,9 @@
 
 #include "atlscilexer.h"
 
-class CLibraryScope
-{
-public:
-	CLibraryScope();
-	explicit CLibraryScope(LPCTSTR pszName);
-	~CLibraryScope();
+#include "LibraryScope.h"
 
-	bool LoadLibrary(LPCTSTR pszName);
-
-	bool IsLoaded() const {return m_hDll != NULL;}
-
-private:
-	HMODULE m_hDll;
-};
+#include "ILexerTitleformat.h"
 
 class CTitleFormatSandboxDialog :
 	public CDialogImpl<CTitleFormatSandboxDialog>,
@@ -48,6 +37,8 @@ public:
 	CSciLexerCtrl m_editor;
 	CSciLexerCtrl m_preview;
 
+	ILexerTitleformatPrivateCall * m_privateCall;
+
 	CTreeViewCtrl m_treeScript;
 
 	titleformat_debugger m_debugger;
@@ -55,7 +46,7 @@ public:
 	ast::fragment m_selfrag;
 
 	bool m_script_update_pending;
-	bool m_updating_fragment;
+	//bool m_updating_fragment;
 
 	static CWindow g_wndInstance;
 	static void ActivateDialog();

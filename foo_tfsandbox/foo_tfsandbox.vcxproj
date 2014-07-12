@@ -45,7 +45,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../sdk/2011-03-11;../scintilla/include;../../../wtl80/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../sdk/2011-03-11;../scintilla/include;../lextitleformat/include;../../../wtl80/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FOO_TFSANDBOX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -59,7 +59,7 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>../../../sdk/2011-03-11/foobar2000/shared</AdditionalLibraryDirectories>
-      <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableUAC>false</EnableUAC>
     </Link>
     <Manifest>
@@ -69,7 +69,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../../sdk/2011-03-11;../scintilla/include;../../../wtl80/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../sdk/2011-03-11;../scintilla/include;../lextitleformat/include;../../../wtl80/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FOO_TFSANDBOX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -83,7 +83,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>../../../sdk/2011-03-11/foobar2000/shared</AdditionalLibraryDirectories>
-      <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shared.lib;comctl32.lib;imm32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AssemblyIdentity>foo_tfsandbox, processorArchitecture=x86, version=1.0.0.0, type=win32</AssemblyIdentity>
@@ -92,12 +92,15 @@
   <ItemGroup>
     <ClCompile Include="CustomScanner.cpp" />
     <ClCompile Include="foo_tfsandbox.cpp" />
+    <ClCompile Include="LibraryScope.cpp" />
+    <ClCompile Include="mainmenu_tfsandbox.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TFDbgDialog.cpp" />
+    <ClCompile Include="string_from_resources.cpp" />
+    <ClCompile Include="TitleformatSandboxDialog.cpp" />
     <ClCompile Include="titleformat_analysis.cpp" />
     <ClCompile Include="titleformat_debug.cpp" />
     <ClCompile Include="titleformat_syntax.cpp" />
@@ -116,16 +119,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomScanner.h" />
+    <ClInclude Include="LibraryScope.h" />
+    <ClInclude Include="mainmenu_commands_impl_single.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="string_from_resources.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TFDbgDialog.h" />
+    <ClInclude Include="TitleformatSandboxDialog.h" />
     <ClInclude Include="titleformat_analysis.h" />
     <ClInclude Include="titleformat_debug.h" />
+    <ClInclude Include="titleformat_node_filter.h" />
     <ClInclude Include="titleformat_syntax.h" />
     <ClInclude Include="foo_tfsandbox_version.h" />
+    <ClInclude Include="titleformat_visitor_impl.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="foo_tfsandbox.rc" />

@@ -27,9 +27,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TFDbgDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="titleformat_analysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +34,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="titleformat_syntax.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainmenu_tfsandbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="string_from_resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleformatSandboxDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LibraryScope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -85,9 +94,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TFDbgDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="titleformat_analysis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -98,6 +104,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="foo_tfsandbox_version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleformatSandboxDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="string_from_resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mainmenu_commands_impl_single.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LibraryScope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="titleformat_node_filter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="titleformat_visitor_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

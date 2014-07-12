@@ -1,10 +1,13 @@
 #include "stdafx.h"
+#include <vector>
+
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "atlscilexer.h"
-#include "TFDbgDialog.h"
 
-#include <vector>
+#include "TitleformatSandboxDialog.h"
+#include "titleformat_node_filter.h"
+#include "titleformat_visitor_impl.h"
 
 #ifndef U2T
 #define U2T(Text) pfc::stringcvt::string_os_from_utf8(Text).get_ptr()
@@ -31,158 +34,7 @@ static cfg_string cfg_format(guid_cfg_format,
 #endif
 );
 
-namespace ATL
-{
-	int GetModuleFileName(HMODULE hModule, CString& strFileName)
-	{
-		TCHAR buffer[MAX_PATH] = {0};
-		::SetLastError(ERROR_SUCCESS);
-		DWORD nLength = ::GetModuleFileName(hModule, buffer, MAX_PATH);
-		if (nLength == MAX_PATH && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-		{
-			DWORD nBufferSize = 256;
-			do {
-				nBufferSize *= 2;
-				LPTSTR pszFileName = strFileName.GetBufferSetLength(nBufferSize);
-				nLength = ::GetModuleFileName(hModule, pszFileName, nBufferSize);
-				strFileName.ReleaseBuffer(nLength);
-			} while (nLength == nBufferSize && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-		}
-		else
-		{
-			strFileName.SetString(buffer, nLength);
-		}
-
-		return strFileName.GetLength();
-	}
-}
-
-CLibraryScope::CLibraryScope() : m_hDll(NULL)
-{
-}
-
-CLibraryScope::CLibraryScope(LPCTSTR pszName) : m_hDll(NULL)
-{
-	LoadLibrary(pszName);
-}
-
-bool CLibraryScope::LoadLibrary(LPCTSTR pszName)
-{
-	ATLASSERT(m_hDll == NULL);
-
-	m_hDll = ::LoadLibrary(pszName);
-
-	return m_hDll != NULL;
-}
-
-CLibraryScope::~CLibraryScope()
-{
-	if (m_hDll != NULL)
-	{
-		::FreeLibrary(m_hDll);
-		m_hDll = NULL;
-	}
-}
-
-namespace ast
-{
-	class node_filter_impl_unknown_function : public node_filter
-	{
-	public:
-		node_filter_impl_unknown_function(titleformat_debugger &p_debugger) : m_debugger(p_debugger) {}
-
-		virtual bool test(block_expression *b) {return true;}
-		virtual bool test(comment *n) {return true;}
-		virtual bool test(string_constant *n) {return true;}
-		virtual bool test(field_reference *n) {return true;}
-		virtual bool test(condition_expression *n) {return true;}
-
-		virtual bool test(call_expression *n)
-		{
-			return !m_debugger.is_function_unknown(n);
-		}
-
-	private:
-		titleformat_debugger &m_debugger;
-	};
- 
-}
-
-bool CTitleFormatSandboxDialog::find_fragment(ast::fragment &out, int start, int end)
-{
-	return ast::find_fragment(out, m_debugger.get_root(), start, end, &ast::node_filter_impl_unknown_function(m_debugger));
-}
-
-CWindow CTitleFormatSandboxDialog::g_wndInstance;
-
-CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_window_position)
-{
-	pfc::string8 install_dir = pfc::string_directory(core_api::get_my_full_path());
-
-	pfc::string8 scilexer_path = install_dir;
-	scilexer_path += "\\SciLexer.dll";
-
-	//m_sciLexerScope.LoadLibrary(pfc::stringcvt::string_os_from_utf8(scilexer_path.get_ptr()));
-	m_sciLexerScope.LoadLibrary(TEXT("SciLexer.dll"));
-
-	pfc::string8 lextitleformat_path = install_dir;
-	lextitleformat_path += "\\LexTitleformat.dll";
-
-	m_lexTitleformatScope.LoadLibrary(pfc::stringcvt::string_os_from_utf8(lextitleformat_path.get_ptr()));
-}
-
-CTitleFormatSandboxDialog::~CTitleFormatSandboxDialog()
-{
-}
-
-bool CTitleFormatSandboxDialog::pretranslate_message(MSG *pMsg)
-{
-	if (GetActiveWindow() == *this)
-	{
-		if (m_accel.TranslateAccelerator(*this, pMsg))
-			return true;
-	}
-	if (IsDialogMessage(pMsg))
-		return true;
-	return false;
-}
-
-void CTitleFormatSandboxDialog::ActivateDialog()
-{
-	if (!g_wndInstance)
-	{
-		CTitleFormatSandboxDialog * dlg = new CTitleFormatSandboxDialog();
-#if 0
-		if (dlg->m_hSciLexerDll != NULL)
-		{
-#endif
-			if (dlg->Create(core_api::get_main_window()) != NULL)
-			{
-				dlg->ShowWindow(SW_SHOW);
-			}
-			else
-			{
-				DWORD dwError = ::GetLastError();
-				pfc::string8 message;
-				console::formatter() << core_api::get_my_file_name() << ": Could not create window: "
-					<< (uFormatSystemErrorMessage(message, dwError) ? message.get_ptr() : pfc::format_hex(dwError).get_ptr());
-			}
-#if 0
-		}
-		else
-		{
-			console::formatter() << core_api::get_my_file_name() << ": Could not load SciLexer.dll";
-			delete dlg;
-		}
-#endif
-	}
-	else
-	{
-		g_wndInstance.SetFocus();
-	}
-}
-
-COLORREF BlendColor(COLORREF color1, DWORD weight1, COLORREF color2, DWORD weight2)
+static COLORREF BlendColor(COLORREF color1, DWORD weight1, COLORREF color2, DWORD weight2)
 {
 	int r = (GetRValue(color1) * weight1 + GetRValue(color2) * weight2) / (weight1 + weight2);
 	int g = (GetGValue(color1) * weight1 + GetGValue(color2) * weight2) / (weight1 + weight2);
@@ -222,7 +74,7 @@ static void LoadMarkerIcon(CSciLexerCtrl sciLexer, int markerNumber, LPCTSTR nam
 			pixels[base + 2] = r;
 			pixels[base + 1] = g;
 			pixels[base + 0] = b;
-			//pixels[base + 0] = a;
+			//pixels[base + 3] = a;
 		}
 	}
 
@@ -230,35 +82,72 @@ static void LoadMarkerIcon(CSciLexerCtrl sciLexer, int markerNumber, LPCTSTR nam
 	sciLexer.RGBAImageSetHeight(16);
 	sciLexer.RGBAImageSetScale(100);
 	sciLexer.MarkerDefineRGBAImage(markerNumber, &pixels[0]);
-#if 0
-	BITMAPINFO bitmapInfo;
-	bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
-	bitmapInfo.bmiHeader.biWidth = 16;
-	bitmapInfo.bmiHeader.biHeight = 16;
-	bitmapInfo.bmiHeader.biPlanes = 1;
-	bitmapInfo.bmiHeader.biBitCount = 32;
-	bitmapInfo.bmiHeader.biCompression = BI_RGB;
-	bitmapInfo.bmiHeader.biSizeImage = 0;
-	bitmapInfo.bmiHeader.biXPelsPerMeter = 300;
-	bitmapInfo.bmiHeader.biYPelsPerMeter = 300;
-	bitmapInfo.bmiHeader.biClrUsed = 0;
-	bitmapInfo.bmiHeader.biClrImportant = 0;
+}
 
-	char * pixels = 0;
+CWindow CTitleFormatSandboxDialog::g_wndInstance;
 
-	CBitmap imageColor;
-	imageColor.CreateDIBSection(NULL, &bitmapInfo, DIB_RGB_COLORS, (void **)&pixels, NULL, 0);
+bool CTitleFormatSandboxDialog::find_fragment(ast::fragment &out, int start, int end)
+{
+	return ast::find_fragment(out, m_debugger.get_root(), start, end, &ast::node_filter_impl_unknown_function(m_debugger));
+}
 
-	imageColor.GetDIBits();
-	CMemoryDC dc;
+CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_window_position)
+{
+	m_privateCall = NULL;
 
-	CBitmap image;
-	image.CreateDIBSection();
-	image.CreateCompatibleBitmap(dc, 16, 16);
+	pfc::string8 install_dir = pfc::string_directory(core_api::get_my_full_path());
 
-	LPCSTR pixels;
-	sciLexer.MarkerDefineRGBAImage(markerNumber, pixels);
-#endif
+	m_sciLexerScope.LoadLibrary(TEXT("SciLexer.dll"));
+
+	pfc::string8 lextitleformat_path = install_dir;
+	lextitleformat_path += "\\LexTitleformat.dll";
+
+	m_lexTitleformatScope.LoadLibrary(pfc::stringcvt::string_os_from_utf8(lextitleformat_path.get_ptr()));
+}
+
+CTitleFormatSandboxDialog::~CTitleFormatSandboxDialog()
+{
+	if (m_privateCall != NULL)
+	{
+		m_privateCall->Release();
+		m_privateCall = NULL;
+	}
+}
+
+bool CTitleFormatSandboxDialog::pretranslate_message(MSG *pMsg)
+{
+	if (GetActiveWindow() == *this)
+	{
+		if (m_accel.TranslateAccelerator(*this, pMsg))
+			return true;
+	}
+	if (IsDialogMessage(pMsg))
+		return true;
+	return false;
+}
+
+void CTitleFormatSandboxDialog::ActivateDialog()
+{
+	if (!g_wndInstance)
+	{
+		CTitleFormatSandboxDialog * dlg = new CTitleFormatSandboxDialog();
+
+		if (dlg->Create(core_api::get_main_window()) != NULL)
+		{
+			dlg->ShowWindow(SW_SHOW);
+		}
+		else
+		{
+			DWORD dwError = ::GetLastError();
+			pfc::string8 message;
+			console::formatter() << core_api::get_my_file_name() << ": Could not create window: "
+				<< (uFormatSystemErrorMessage(message, dwError) ? message.get_ptr() : pfc::format_hex(dwError).get_ptr());
+		}
+	}
+	else
+	{
+		g_wndInstance.SetFocus();
+	}
 }
 
 void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
@@ -328,6 +217,8 @@ void CTitleFormatSandboxDialog::SetupTitleFormatStyles(CSciLexerCtrl sciLexer)
 	if ((sciLexer.GetLexerLanguage(lexerLanguage) > 0) && (lexerLanguage == "titleformat"))
 	{
 		sciLexer.SetProperty("fold", "1");
+
+		m_privateCall = (ILexerTitleformatPrivateCall *) sciLexer.PrivateLexerCall(SPC_TITLEFORMAT_GETINTERFACE, NULL);
 
 		// Comments
 		sciLexer.StyleSetFore(1 /*SCE_TITLEFORMAT_COMMENTLINE*/, RGB(0, 128, 0));
@@ -404,8 +295,6 @@ void CTitleFormatSandboxDialog::SetupPreviewStyles(CSciLexerCtrl sciLexer)
 	sciLexer.SetSelBack(true, RGB(51, 153, 255));
 }
 
-#pragma comment(lib, "uxtheme.lib")
-
 BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
 	m_editor.Attach(GetDlgItem(IDC_SCRIPT));
@@ -440,7 +329,7 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_treeScript.SetImageList(imageList);
 
 	m_script_update_pending = true;
-	m_updating_fragment = false;
+	//m_updating_fragment = false;
 
 
 	m_editor.SetText(cfg_format);
@@ -770,146 +659,73 @@ void CTitleFormatSandboxDialog::UpdateTrace()
 	UpdateFragment(m_editor.GetSelectionStart(), m_editor.GetSelectionEnd());
 }
 
-static void g_walk_indicator(CSciLexerCtrl sciLexer, titleformat_debugger &dbg, ast::node *n)
-{
-	if (dbg.test_value(n))
-	{
-		t_size count = n->get_child_count();
-		switch (n->kind())
-		{
-		case ast::node::kind_block:
-			for (t_size index = 0; index < count; ++index)
-			{
-				g_walk_indicator(sciLexer, dbg, n->get_child(index));
-			}
-			break;
-
-		case ast::node::kind_condition:
-			g_walk_indicator(sciLexer, dbg, n->get_child(1));
-			break;
-
-		case ast::node::kind_call:
-			ast::call_expression *call;
-			call = static_cast<ast::call_expression *>(n);
-			for (t_size index = 0; index < call->get_param_count(); ++index)
-			{
-				g_walk_indicator(sciLexer, dbg, call->get_param(index));
-			}
-			break;
-		}
-	}
-	else if (n->kind() != ast::node::kind_comment)
-	{
-		ast::position pos = n->get_position();
-		if (pos.start != -1)
-		{
-			sciLexer.IndicatorFillRange(pos.start, pos.end - pos.start);
-		}
-	}
-}
-
-class inactive_range_walker
-{
-public:
-	std::vector<int> inactiveRanges;
-
-	inactive_range_walker(titleformat_debugger &p_dbg) : dbg(p_dbg)
-	{
-		walk(p_dbg.get_root());
-		inactiveRanges.push_back(-1);
-		inactiveRanges.push_back(-1);
-	}
-
-private:
-	titleformat_debugger &dbg;
-
-	void walk(ast::node *n)
-	{
-		if (dbg.test_value(n))
-		{
-			t_size count = n->get_child_count();
-			switch (n->kind())
-			{
-			case ast::node::kind_block:
-				for (t_size index = 0; index < count; ++index)
-				{
-					walk(n->get_child(index));
-				}
-				break;
-
-			case ast::node::kind_condition:
-				walk(n->get_child(1));
-				break;
-
-			case ast::node::kind_call:
-				ast::call_expression *call;
-				call = static_cast<ast::call_expression *>(n);
-				for (t_size index = 0; index < call->get_param_count(); ++index)
-				{
-					walk(call->get_param(index));
-				}
-				break;
-			}
-		}
-		else if (n->kind() != ast::node::kind_comment)
-		{
-			ast::position pos = n->get_position();
-			if (pos.start != -1)
-			{
-				inactiveRanges.push_back(pos.start);
-				inactiveRanges.push_back(pos.end - pos.start);
-			}
-		}
-	}
-};
-
 void CTitleFormatSandboxDialog::ClearInactiveCodeIndicator()
 {
-#if 0
-	m_editor.SetIndicatorCurrent(indicator_inactive_code);
-	m_editor.SetIndicatorValue(1);
-	m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
-#else
-	int ranges[] = {
-		-1, -1,
-	};
-	m_editor.PrivateLexerCall(1234, ranges);
-#endif
+	if (m_privateCall != NULL)
+	{
+		m_privateCall->ClearInactiveRanges();
+	}
+	else
+	{
+		m_editor.SetIndicatorCurrent(indicator_inactive_code);
+		m_editor.SetIndicatorValue(1);
+		m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
+	}
 }
 
 void CTitleFormatSandboxDialog::UpdateInactiveCodeIndicator()
 {
-#if 0
-	m_editor.SetIndicatorCurrent(indicator_inactive_code);
-	m_editor.SetIndicatorValue(1);
-	m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
-
-	if (m_debugger.get_parser_errors() == 0)
-	{
-		ast::node *root = m_debugger.get_root();
-		g_walk_indicator(m_editor, m_debugger, root);
-	}
-#else
 	inactive_range_walker walker(m_debugger);
-	m_editor.PrivateLexerCall(1234, &walker.inactiveRanges[0]);
-	m_editor.Colourise(0, m_editor.GetLength());
-#endif
+	if (m_privateCall != NULL)
+	{
+		if (!walker.inactiveRanges.empty())
+		{
+			m_privateCall->SetInactiveRanges(walker.inactiveRanges.size(), &walker.inactiveRanges[0]);
+			m_editor.Colourise(0, m_editor.GetLength());
+		}
+	}
+	else
+	{
+		m_editor.SetIndicatorCurrent(indicator_inactive_code);
+		m_editor.SetIndicatorValue(1);
+		m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
+
+		if (m_debugger.get_parser_errors() == 0)
+		{
+			inactive_range_walker walker(m_debugger);
+			size_t count = walker.inactiveRanges.size();
+			for (size_t index = 0; index < count; ++index)
+			{
+				int position = walker.inactiveRanges[index].cpMin;
+				int fillLength = walker.inactiveRanges[index].cpMax - walker.inactiveRanges[index].cpMin;
+				m_editor.IndicatorFillRange(position, fillLength);
+			}
+		}
+	}
 }
 
 void CTitleFormatSandboxDialog::ClearFragment()
 {
 	m_selfrag = ast::fragment();
 
-	m_editor.SetIndicatorCurrent(indicator_fragment);
-	m_editor.SetIndicatorValue(1);
-	m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
+	if (m_privateCall != NULL)
+	{
+		m_privateCall->ClearInactiveRanges();
+		m_editor.Colourise(0, m_editor.GetLength());
+	}
+	else
+	{
+		m_editor.SetIndicatorCurrent(indicator_fragment);
+		m_editor.SetIndicatorValue(1);
+		m_editor.IndicatorClearRange(0, m_editor.GetTextLength());
+	}
 }
 
 void CTitleFormatSandboxDialog::UpdateFragment(int selStart, int selEnd)
 {
-	if (m_script_update_pending || m_updating_fragment) return;
+	if (m_script_update_pending/* || m_updating_fragment*/) return;
 
-	pfc::vartoggle_t<bool> blah(m_updating_fragment, true);
+	//pfc::vartoggle_t<bool> blah(m_updating_fragment, true);
 
 	try
 	{
