@@ -7,5 +7,12 @@
 DECLARE_COMPONENT_VERSION(
 	COMPONENT_NAME,
 	COMPONENT_VERSION,
-	"Copyright (C) 2014 Holger Stenger"
+	"Title formatting editor with syntax coloring, code structure view and preview.\n"
+	"\n"
+	"Copyright (C) 2014 Holger Stenger\n"
+	"- https://github.com/stengerh/foo_tfsandbox\n"
+	"\n"
+	"Some icons by Yusuke Kamiyamane. Licensed under a Creative Commons Attribution 3.0 License.\n"
+	"- http://p.yusukekamiyamane.com/\n"
+	"- http://creativecommons.org/licenses/by/3.0/\n"
 );

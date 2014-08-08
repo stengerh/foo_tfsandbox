@@ -2691,7 +2691,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		wndclass.lpszMenuName = NULL;
 		wndclass.lpszClassName = scintillaClassName;
 		wndclass.hIconSm = 0;
-		scintillaClassAtom = ::RegisterClassExW(&wndclass);
+		scintillaClassAtom = ::RegisterClassEx(&wndclass);
 		result = 0 != scintillaClassAtom;
 	}
 
