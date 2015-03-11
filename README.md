@@ -3,6 +3,8 @@ Title Formatting Sandbox
 
 Plugin for foobar2000 which provides an editor for title formatting scripts with syntax highlighting, a code structure view and preview for the selected script fragment.
 
+![Screenshot of Title Formatting Sandbox window](foo_tfsandbox-1.png)
+
 Links
 -----
 
