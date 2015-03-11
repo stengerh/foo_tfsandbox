@@ -106,6 +106,7 @@
     <ClCompile Include="titleformat_syntax.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="cross.ico" />
     <None Include="exclamation.ico" />
     <None Include="Parser.frame" />

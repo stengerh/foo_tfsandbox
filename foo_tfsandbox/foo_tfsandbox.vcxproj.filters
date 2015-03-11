@@ -74,6 +74,7 @@
     <None Include="tick.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomScanner.h">
