@@ -305,6 +305,8 @@ BOOL CTitleFormatSandboxDialog::OnInitDialog(CWindow wndFocus, LPARAM lInitParam
 	m_editor.SetModEventMask(SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
 	m_editor.SetMouseDwellTime(500);
 
+	m_preview.SetCodePage(SC_CP_UTF8);
+
 	SetIcon(static_api_ptr_t<ui_control>()->get_main_icon());
 
 	// Set up styles
