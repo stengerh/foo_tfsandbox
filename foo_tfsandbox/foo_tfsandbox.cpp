@@ -9,7 +9,7 @@ DECLARE_COMPONENT_VERSION(
 	COMPONENT_VERSION,
 	"Title formatting editor with syntax coloring, code structure view and preview.\n"
 	"\n"
-	"Copyright (C) 2014 Holger Stenger\n"
+	"Copyright (C) 2016 Holger Stenger\n"
 	"- https://github.com/stengerh/foo_tfsandbox\n"
         "\n"
         "Scintilla source code editing component\n"
