@@ -33,6 +33,7 @@ public:
 	CAccelerator m_accel;
 
 	cfgDialogPositionTracker m_dlgPosTracker;
+    CDialogResizeHelper m_dlgResizeHelper;
 
 	CSciLexerCtrl m_editor;
 	CSciLexerCtrl m_preview;
@@ -88,6 +89,7 @@ public:
 	// Message map and handlers
 
 	BEGIN_MSG_MAP(CTitleFormatSandboxDialog)
+        CHAIN_MSG_MAP_MEMBER(m_dlgResizeHelper)
 		CHAIN_MSG_MAP_MEMBER(m_dlgPosTracker)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		MSG_WM_DESTROY(OnDestroy)

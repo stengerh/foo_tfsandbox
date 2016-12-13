@@ -91,8 +91,16 @@ bool CTitleFormatSandboxDialog::find_fragment(ast::fragment &out, int start, int
 	return ast::find_fragment(out, m_debugger.get_root(), start, end, &ast::node_filter_impl_unknown_function(m_debugger));
 }
 
-CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_window_position)
+static CDialogResizeHelper::Param resizeParams[] = {
+    {IDC_SCRIPT, 0, 0, 1, 1},
+    {IDC_VALUE, 0, 1, 1, 1},
+    {IDC_TREE, 1, 0, 1, 1}
+};
+
+CTitleFormatSandboxDialog::CTitleFormatSandboxDialog() : m_dlgPosTracker(cfg_window_position), m_dlgResizeHelper(resizeParams)
 {
+    m_dlgResizeHelper.set_min_size(300, 150);
+
 	m_privateCall = NULL;
 
 	pfc::string8 install_dir = pfc::string_directory(core_api::get_my_full_path());
