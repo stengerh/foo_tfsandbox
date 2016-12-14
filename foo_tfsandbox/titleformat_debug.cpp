@@ -146,8 +146,11 @@ void titleformat_debugger::trace(metadb_handle_ptr p_handle)
 {
 	m_analysis.init(p_handle, get_root());
 
-	visitor_titleformat_debug v(m_env, m_analysis, p_handle);
-	v.compute_value(get_root());
+    if (p_handle.is_valid())
+    {
+	    visitor_titleformat_debug v(m_env, m_analysis, p_handle);
+	    v.compute_value(get_root());
+    }
 
 	m_trace_valid = true;
 }
@@ -211,9 +214,12 @@ void visitor_titleformat_debug::visit(ast::field_reference *n)
 	if (tfc->compile(script, format))
 	{
 		buffer.reset();
-		m_handle->format_title(0, buffer, script, 0);
-		data->m_string_value = &buffer[1];
-		data->m_bool_value = buffer[0] == '1';
+        if (m_handle.is_valid())
+        {
+		    m_handle->format_title(nullptr, buffer, script, nullptr);
+		    data->m_string_value = &buffer[1];
+		    data->m_bool_value = buffer[0] == '1';
+        }
 	}
 #endif
 }
